@@ -2,7 +2,7 @@
   <div>
     <HeadTop/>
     <div class="tables" style="padding:30px">
-      <el-card>
+
         <el-table :data="typeForm" v-loading="dataListLoading" ref="eltable">
           <el-table-column v-for="(item,index) in typeTable"
               :label="getDataLabel(item)"
@@ -19,7 +19,16 @@
             </template>
           </el-table-column>
         </el-table>
-      </el-card>
+         <!-- 分页 -->
+        <el-pagination
+          background
+          layout="total, prev, pager, next"
+          :current-page=page
+          :total=totalList
+          :page-size=pageSize
+          @current-change="currentChangeHandle">
+        </el-pagination>
+
     </div>
   </div>
 </template>
@@ -29,6 +38,9 @@ import HeadTop from "../../components/headTop";
 export default {
   data(){
     return{
+      page:0,
+      totalList:3,
+      pageSize:10,
       dataListLoading:false,
       typeForm:[],
       typeTable:['index','id','name','commit','status'],
@@ -55,9 +67,25 @@ export default {
     },
     editHandle(){},
     delHandle(){},
+    currentChangeHandle(val){
+      this.page = val;
+    },
   }
 }
 </script >
 
 <style lang="scss">
+  .el-pagination.is-background .el-pager li:not(.disabled).active {
+    background-color: #76b852;
+    color: #FFF;
+  }
+  .el-table__header-wrapper thead div {
+    background-color: 	#3CB371;
+  }
+  .el-table th {
+    background-color: #3CB371;
+  }
+  .el-table thead{
+    color: #363636;
+  }
 </style>
