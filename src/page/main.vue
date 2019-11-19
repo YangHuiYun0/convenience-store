@@ -1,43 +1,55 @@
 <template>
-	<div class="manage_page fillcontain">
-		<el-row style="height: 100%;">
-	  		<el-col :span="4"  style="min-height: 100%; background-color: #324157;">
-				<el-menu :default-active="defaultActive" style="min-height: 100%; background-color: #324057;" theme="dark" router>
-					<el-menu-item index="manage"><i class="el-icon-menu"></i>首页</el-menu-item>
+	<div >
+		<el-row style="height: 100%;" class="tac">
+	  		<el-col :span="4" style="min-height: 100vh; background-color: #545c64;">
+					<div class="head">
+						便利店
+					</div>
+					<el-menu
+					default-active="2"
+					class="el-menu-vertical-demo"
+					text-color="#fff"
+					background-color="#545c64"
+					style="min-height: 100%; " router>
+					<el-menu-item index="/home"><i class="el-icon-menu"></i>首页</el-menu-item>
 					<el-submenu index="2">
-						<template slot="title"><i class="el-icon-document"></i>数据管理</template>
-						<el-menu-item index="userList">用户列表</el-menu-item>
-						<el-menu-item index="shopList">商家列表</el-menu-item>
-						<el-menu-item index="foodList">食品列表</el-menu-item>
-						<el-menu-item index="orderList">订单列表</el-menu-item>
-						<el-menu-item index="adminList">管理员列表</el-menu-item>
+						<template slot="title">
+							<i class="el-icon-suitcase-1"></i>
+							<span>商品管理</span>
+						</template>
+						<el-menu-item-group>
+							<el-menu-item index="/goods-manage-typeList" style="padding-left: 60px;">商品类别</el-menu-item>
+							<el-menu-item index="2-2" style="padding-left: 60px;">商品列表</el-menu-item>
+							<el-menu-item index="2-3" style="padding-left: 60px;">快速补货</el-menu-item>
+							<el-menu-item index="2-4" style="padding-left: 60px;">供应商列表</el-menu-item>
+						</el-menu-item-group>
 					</el-submenu>
 					<el-submenu index="3">
-						<template slot="title"><i class="el-icon-plus"></i>添加数据</template>
-						<el-menu-item index="addShop">添加商铺</el-menu-item>
-						<el-menu-item index="addGoods">添加商品</el-menu-item>
+						<template slot="title">
+							<i class="el-icon-notebook-1"></i>
+							<span>销售管理</span>
+						</template>
+						<el-menu-item-group>
+							<el-menu-item index="3-1" style="padding-left: 60px;">收银台</el-menu-item>
+							<el-menu-item index="3-2" style="padding-left: 60px;">销售记录</el-menu-item>
+							<el-menu-item index="3-3" style="padding-left: 60px;">销售统计</el-menu-item>
+						</el-menu-item-group>
 					</el-submenu>
 					<el-submenu index="4">
-						<template slot="title"><i class="el-icon-star-on"></i>图表</template>
-						<el-menu-item index="visitor">用户分布</el-menu-item>
-					</el-submenu>
-					<el-submenu index="5">
-						<template slot="title"><i class="el-icon-edit"></i>编辑</template>
-						<el-menu-item index="vueEdit">文本编辑</el-menu-item>
-					</el-submenu>
-					<el-submenu index="6">
-						<template slot="title"><i class="el-icon-setting"></i>设置</template>
-						<el-menu-item index="adminSet">管理员设置</el-menu-item>
-					</el-submenu>
-					<el-submenu index="7">
-						<template slot="title"><i class="el-icon-warning"></i>说明</template>
-						<el-menu-item index="explain">说明</el-menu-item>
+						<template slot="title">
+							<i class="el-icon-user"></i>
+							<span>用户管理</span>
+						</template>
+						<el-menu-item-group>
+							<el-menu-item index="4-1" style="padding-left: 60px;">个人信息</el-menu-item>
+							<el-menu-item index="4-2" style="padding-left: 60px;">会员列表</el-menu-item>
+						</el-menu-item-group>
 					</el-submenu>
 				</el-menu>
 			</el-col>
 			<el-col :span="20" style="height: 100%;overflow: auto;">
 				<keep-alive>
-				    <router-view></router-view>
+					<router-view></router-view>
 				</keep-alive>
 			</el-col>
 		</el-row>
@@ -45,16 +57,35 @@
 </template>
 
 <script>
+import HeadTop from "../components/headTop";
     export default {
-		computed: {
-			defaultActive: function(){
-				return this.$route.path.replace('/', '');
-			}
-		},
+			computed: {
+				defaultActive: function(){
+					return this.$route.path.replace('/', '');
+				}
+			},
+			components: {
+				HeadTop,
+			},
     }
 </script>
 
 
-<style >
+<style lang="scss" scoped>
+.fillcontain{
+	width: 100%;
+	height: 100%;
+}
+.head{
+	min-width: 180px;
+	height: 60px;
+	color: aquamarine;
+	text-align: center;
+	line-height: 60px;
+	font-size: 28px;
+}
 
+.el-submenu .el-menu-item {
+    min-width: 180px;
+}
 </style>
