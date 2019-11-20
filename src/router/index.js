@@ -7,6 +7,7 @@ const login = r => require.ensure([], () => r(require('@/page/login')), 'login')
 const main = r => require.ensure([], () => r(require('@/page/main')), 'main');
 const home = r => require.ensure([], () => r(require('@/page/home')), 'home');
 const typeList = r => require.ensure([], () => r(require('@/page/goods-manage/typeList.vue')), 'typeList');
+const goodsList = r => require.ensure([], () => r(require('@/page/goods-manage/goodsList.vue')), 'goodsList');
 
 const routes = [
 	{
@@ -25,6 +26,11 @@ const routes = [
 			path: '/goods-manage-typeList',
 			component: typeList,
       meta: ['商品管理', '商品类别'],
+    },
+    {
+			path: '/goods-manage-goodsList',
+			component: goodsList,
+      meta: ['商品管理', '商品列表'],
     },
     ]
   }

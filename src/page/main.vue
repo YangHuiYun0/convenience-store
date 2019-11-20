@@ -1,7 +1,13 @@
 <template>
+<<<<<<< HEAD
 	<div >
 		<el-row style="height: 100%;" class="tac">
 	  		<el-col :span="4" style=" background-color: #545c64; ">
+=======
+	<div class="fillcontain">
+		<el-row style="height: 100%; position: fixed" class="tac">
+	  		<el-col :span="4" style="min-height: 100vh; background-color: #545c64; ">
+>>>>>>> 5508de0b97fb2092157ddbb8acd56f0d7934ae16
 					<div class="head">
 						便利店
 					</div>
@@ -10,7 +16,7 @@
 					class="el-menu-vertical-demo"
 					text-color="#fff"
 					background-color="#545c64"
-					style="min-height: 100%; " router>
+					style="min-height: 100%; " router theme="dark">
 					<el-menu-item index="/home"><i class="el-icon-menu"></i>首页</el-menu-item>
 					<el-submenu index="2">
 						<template slot="title">
@@ -19,7 +25,7 @@
 						</template>
 						<el-menu-item-group>
 							<el-menu-item index="/goods-manage-typeList" style="padding-left: 60px;">商品类别</el-menu-item>
-							<el-menu-item index="2-2" style="padding-left: 60px;">商品列表</el-menu-item>
+							<el-menu-item index="/goods-manage-goodsList" style="padding-left: 60px;">商品列表</el-menu-item>
 							<el-menu-item index="2-3" style="padding-left: 60px;">快速补货</el-menu-item>
 							<el-menu-item index="2-4" style="padding-left: 60px;">供应商列表</el-menu-item>
 						</el-menu-item-group>
