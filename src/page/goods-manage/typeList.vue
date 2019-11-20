@@ -3,11 +3,11 @@
     <HeadTop/>
     <div class="tables" style="padding:30px">
 
-        <el-table :data="typeForm" v-loading="dataListLoading" ref="eltable">
+        <el-table :data="typeData" v-loading="dataListLoading" ref="eltable">
           <el-table-column v-for="(item,index) in typeTable"
               :label="getDataLabel(item)"
               :width="(index === 0 && 50)"
-              :index="indexMethod"
+              
               :key="item" :prop="item"
               align="center">
           </el-table-column>

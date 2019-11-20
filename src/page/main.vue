@@ -1,7 +1,7 @@
 <template>
 	<div >
 		<el-row style="height: 100%;" class="tac">
-	  		<el-col :span="4" style="min-height: 100vh; background-color: #545c64;">
+	  		<el-col :span="4" style=" background-color: #545c64; ">
 					<div class="head">
 						便利店
 					</div>
