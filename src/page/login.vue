@@ -65,9 +65,9 @@ export default {
   position: absolute;
   font-size: 34px;
   width: 400px;
-  top: 10px;
+  top: -50px;
   left: 52%;
-  margin-left: -200px;
+  margin-left: -210px;
 }
 .login-page{
   margin: 0 auto;
@@ -77,9 +77,9 @@ export default {
     z-index: 1;
     background: #FFFFFF;
     width: 460px;
-    top: 250px;
+    top: 180px;
     left: 50%;
-    margin-left: -230px;
+    margin-left: -270px;
     padding: 45px;
     text-align: center;
     box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);

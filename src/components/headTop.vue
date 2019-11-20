@@ -7,8 +7,7 @@
 		<el-dropdown @command="handleCommand" menu-align='start'>
       <img src="./image/default.jpg" class="avator">
 			<el-dropdown-menu slot="dropdown">
-				<el-dropdown-item command="">首页</el-dropdown-item>
-				<el-dropdown-item command="">退出</el-dropdown-item>
+				<el-dropdown-item command="" @click.native="handleClose()">退出</el-dropdown-item>
 			</el-dropdown-menu>
 		</el-dropdown>
     </div>
@@ -29,7 +28,13 @@
     	computed: {
     	},
 		methods: {
-
+			handleClose(){
+				this.$message({
+					type: 'success',
+					message: '退出成功'
+				});
+				this.$router.push('/');
+			},
 			async handleCommand(command) {
 				if (command == 'home') {
 					this.$router.push('/manage');

@@ -7,14 +7,13 @@
           <el-table-column v-for="(item,index) in typeTable"
               :label="getDataLabel(item)"
               :width="(index === 0 && 50)"
-              
               :key="item" :prop="item"
               align="center">
           </el-table-column>
           <el-table-column label="操作" width="150" align="center">
             <template slot-scope="scope"> 
               <!--编辑 删除 -->
-              <i class="el-icon-edit"  @click="editHandle();"></i> 
+              <i class="el-icon-edit"  @click="editHandle(scope.row.id);"></i> 
               <i class="el-icon-delete" @click="delHandle();"></i>
             </template>
           </el-table-column>
@@ -28,7 +27,8 @@
           :page-size=pageSize
           @current-change="currentChangeHandle">
         </el-pagination>
-
+         <el-dialog title='增加商品分类' v-if="isShowDialog">
+         </el-dialog>
     </div>
   </div>
 </template>
@@ -48,7 +48,11 @@ export default {
         {index:'1',id:'1111222',name:'膨化食品',commit:'薯片、饼干等',status:'上架'},
         {index:'2',id:'3432553',name:'膨化食品',commit:'薯片、饼干等',status:'上架'},
         {index:'3',id:'4563456',name:'膨化食品',commit:'薯片、饼干等',status:'上架'},
-      ]
+      ],
+      isShowDialog:false,
+      goodsForm:{
+
+      }
     }
   },
   components: {
@@ -87,5 +91,6 @@ export default {
   }
   .el-table thead{
     color: #363636;
+    
   }
 </style>

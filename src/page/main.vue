@@ -1,13 +1,7 @@
 <template>
-<<<<<<< HEAD
-	<div >
-		<el-row style="height: 100%;" class="tac">
-	  		<el-col :span="4" style=" background-color: #545c64; ">
-=======
 	<div class="fillcontain">
-		<el-row style="height: 100%; position: fixed" class="tac">
+		<el-row style="height: 100%; position: fixed ;width:100%" class="tac">
 	  		<el-col :span="4" style="min-height: 100vh; background-color: #545c64; ">
->>>>>>> 5508de0b97fb2092157ddbb8acd56f0d7934ae16
 					<div class="head">
 						便利店
 					</div>
