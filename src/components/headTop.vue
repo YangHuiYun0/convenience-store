@@ -71,7 +71,7 @@
   }
 
 	.el-dropdown-menu__item{
-        text-align: center;
-    }
+		text-align: center;
+	}
 </style>
 
