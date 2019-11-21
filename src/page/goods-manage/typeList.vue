@@ -28,13 +28,15 @@
           :page-size=pageSize
           @current-change="currentChangeHandle">
         </el-pagination>
-    </div>
-    <AddType
+
+            <AddType
       v-if="addTypeVisible"
       ref="AddType"
       @updateTypeData="updateTypeData(arguments)"
     />
   </div>
+    </div>
+
 </template>
 
 <script>

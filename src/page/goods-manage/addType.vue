@@ -1,12 +1,25 @@
 <template>
  <el-dialog :title="!addTypeForm.id ? '新增商品类别' : '商品类别编辑'"
              :before-close="beforeClose"
-             :visible.sync="visible">
+             :visible.sync="visible"
+             :modal-append-to-body='false'
+             width='500px'>
     <el-form :model="addTypeForm" ref="addTypeForm" :rules="rules">
-      <el-form-item label="商品类别" prop="goodsType">
+       <el-form-item label="类别编号" prop="typeId">
+        <el-input v-model="addTypeForm.typeId" show-word-limit maxlength=12
+                  clearable style="width:300px"></el-input>
+      </el-form-item>
+      <el-form-item label="类别名称" prop="goodsType">
         <el-input v-model="addTypeForm.name" show-word-limit maxlength=12
                   clearable style="width:300px"></el-input>
       </el-form-item>
+       <el-form-item label="类别介绍" prop="typeCommit">
+        <el-input v-model="addTypeForm.typeCommit" type="textarea" :rows="2"  style="width:300px"></el-input>
+      </el-form-item>
+       <el-form-item label="是否启用" prop="status">
+          <el-radio v-model="addTypeForm.status" label='true'>启用</el-radio>
+          <el-radio v-model="addTypeForm.status" label='false'>禁用</el-radio>
+       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="cancel">取消</el-button>
@@ -24,6 +37,9 @@ export default {
       addTypeForm:{
         id:null,
         name:'',
+        typeId:'',
+        typeCommit:'', 
+        status:'true',
       },
       rules:{
         name:[
