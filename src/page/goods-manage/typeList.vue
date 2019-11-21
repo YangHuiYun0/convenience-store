@@ -2,7 +2,8 @@
   <div>
     <HeadTop/>
     <div class="tables" style="padding:30px">
-
+      <el-button class="el-icon-plus modify-btn right-btn" size="small"
+                  @click="addType()">增加商品类别</el-button>
         <el-table :data="typeForm" v-loading="dataListLoading" ref="eltable">
           <el-table-column v-for="(item,index) in typeTable"
               :label="getDataLabel(item)"
@@ -28,13 +29,18 @@
           :page-size=pageSize
           @current-change="currentChangeHandle">
         </el-pagination>
-
     </div>
+    <AddType
+      v-if="addTypeVisible"
+      ref="AddType"
+      @updateTypeData="updateTypeData(arguments)"
+    />
   </div>
 </template>
 
 <script>
 import HeadTop from "../../components/headTop";
+import AddType from "./addType";
 export default {
   data(){
     return{
@@ -42,6 +48,7 @@ export default {
       totalList:3,
       pageSize:10,
       dataListLoading:false,
+      addTypeVisible:false,
       typeForm:[],
       typeTable:['index','id','name','commit','status'],
       typeData:[
@@ -53,6 +60,7 @@ export default {
   },
   components: {
     HeadTop,
+    AddType,
   },
   methods:{
     getDataLabel(type){
@@ -69,6 +77,28 @@ export default {
     delHandle(){},
     currentChangeHandle(val){
       this.page = val;
+    },
+     // 新增 / 修改 小贴士
+    addType(id) {
+      this.addTypeVisible = true;
+      this.$nextTick(() => {
+        this.$refs.AddType.init(id);
+      });
+    },
+    //新增一条数据后
+    updateTypeData(argument){
+       const res = argument[0];
+        const that = this;
+        if (res.type === 'modify') {
+          this.typeData.forEach((item, index) => {
+            if (item.id === res.data.id) {
+              // 更新奖品数据
+              that.$set(this.typeData, index, res.data);
+            }
+          });
+        } else {
+          that.typeData.push(res.data);
+        }
     },
   }
 }
