@@ -2,9 +2,11 @@
   <div>
     <HeadTop/>
     <div class="tables" style="padding:30px">
-      <el-button class="el-icon-plus modify-btn right-btn" size="small"
+      <div style="margin-bottom:10px;text-align: right">
+        <el-button  type="success" class="el-icon-plus modify-btn right-btn" size="small"
                   @click="addType()">增加商品类别</el-button>
-        <el-table :data="typeForm" v-loading="dataListLoading" ref="eltable">
+      </div>
+        <el-table :data="typeData" v-loading="dataListLoading" ref="eltable">
           <el-table-column v-for="(item,index) in typeTable"
               :label="getDataLabel(item)"
               :width="(index === 0 && 50)"
@@ -28,13 +30,34 @@
           :page-size=pageSize
           @current-change="currentChangeHandle">
         </el-pagination>
-
-            <AddType
-      v-if="addTypeVisible"
-      ref="AddType"
-      @updateTypeData="updateTypeData(arguments)"
-    />
-  </div>
+      </div>
+      <el-dialog :title="!addTypeForm.id ? '新增商品类别' : '商品类别编辑'"
+             :before-close="beforeClose"
+             :visible.sync="dialogVisible"
+             :modal-append-to-body='false'
+             width='500px'>
+        <el-form :model="addTypeForm" ref="addTypeForm" :rules="rules">
+          <el-form-item label="类别编号" prop="typeId">
+            <el-input v-model="addTypeForm.typeId" show-word-limit maxlength=12
+                      clearable style="width:300px"></el-input>
+          </el-form-item>
+          <el-form-item label="类别名称" prop="name">
+            <el-input v-model="addTypeForm.name" show-word-limit maxlength=12
+                      clearable style="width:300px"></el-input>
+          </el-form-item>
+          <el-form-item label="类别介绍" prop="commit">
+            <el-input v-model="addTypeForm.commit" type="textarea" :rows="2"  style="width:300px"></el-input>
+          </el-form-item>
+          <el-form-item label="是否启用" prop="status">
+              <el-radio v-model="addTypeForm.status" label='true'>启用</el-radio>
+              <el-radio v-model="addTypeForm.status" label='false'>禁用</el-radio>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="cancel">取消</el-button>
+          <el-button type="primary" @click="formSubmit" :loading="submitLoading">确定</el-button>
+        </span>
+      </el-dialog>
     </div>
 
 </template>
@@ -51,15 +74,36 @@ export default {
       dataListLoading:false,
       addTypeVisible:false,
       typeForm:[],
-      typeTable:['index','id','name','commit','status'],
+      typeTable:['index','typeId','name','commit','status'],
       typeData:[
-        {index:'1',id:'1111222',name:'膨化食品',commit:'薯片、饼干等',status:'上架'},
-        {index:'2',id:'3432553',name:'膨化食品',commit:'薯片、饼干等',status:'上架'},
-        {index:'3',id:'4563456',name:'膨化食品',commit:'薯片、饼干等',status:'上架'},
+        {index:'1',typeId:'1111222',name:'膨化食品',commit:'薯片、饼干等',status:'上架'},
+        {index:'2',typeId:'3432553',name:'膨化食品',commit:'薯片、饼干等',status:'上架'},
+        {index:'3',typeId:'4563456',name:'膨化食品',commit:'薯片、饼干等',status:'上架'},
       ],
       isShowDialog:false,
       goodsForm:{
 
+      },
+      // 弹窗
+      submitLoading:false,
+      dialogVisible:false,
+      addTypeForm:{
+        id:null,
+        name:'',
+        typeId:'',
+        commit:'', 
+        status:'true',
+      },
+      rules:{
+        name:[
+          {required: true, message: '请输入类别名称', trigger: 'blur'}
+        ],
+        typeId:[
+           {required: true, message: '请输入类别编号', trigger: 'blur'}
+        ],
+        commit:[
+          {required: true, message: '请输入类别介绍', trigger: 'blur'}
+        ],
       }
     }
   },
@@ -71,7 +115,7 @@ export default {
     getDataLabel(type){
       const typeLabel = {
         index:'序号',
-        id:'类别编号',
+        typeId:'类别编号',
         name:'类别名称',
         commit:'类别介绍',
         status:'状态'
@@ -85,10 +129,7 @@ export default {
     },
      // 新增 / 修改 小贴士
     addType(id) {
-      this.addTypeVisible = true;
-      this.$nextTick(() => {
-        this.$refs.AddType.init(id);
-      });
+      this.dialogVisible = true;
     },
     //新增一条数据后
     updateTypeData(argument){
@@ -104,6 +145,30 @@ export default {
         } else {
           that.typeData.push(res.data);
         }
+    },
+    // 弹窗
+    beforeClose() {
+      this.cancel();
+    },
+    cancel() {
+      this.$refs.addTypeForm.resetFields();
+      this.submitLoading = false;
+      this.dialogVisible = false;
+    },
+    formSubmit(){
+    const that = this;
+     that.$refs.addTypeForm.validate(valid => {
+        if (!valid) {
+          this.$message.error('请填写完整再保存');
+          return false;
+        }
+        var _index = this.typeData.length;
+        this.typeData[_index] = this.addTypeForm;
+        this.dialogVisible = false;
+        this.submitLoading = false;
+        // 再去请求接口  渲染表格
+      })
+      
     },
   }
 }

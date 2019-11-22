@@ -2,6 +2,10 @@
   <div>
     <HeadTop/>
     <div class="tables" style="padding:30px">
+       <div style="margin-bottom:10px;text-align: right">
+          <el-button type="danger" class="el-icon-delete" >删除选中</el-button>
+          <el-button type="success" class="el-icon-plus" >增加商品</el-button>
+        </div>
         <el-card>
           <el-form label-width="100px">
             <el-row>
@@ -34,16 +38,12 @@
                   <el-input v-model="name" style="width:200px" placeholder="请输入商品名称"></el-input>
                 <!-- </el-form-item> -->
               </el-col>
-              <el-col :span="4">
-                <el-button type="success">查询</el-button>
+              <el-col :span="4" style="">
+                <el-button type="info" style="text-align: right;">查询</el-button>
               </el-col>
             </el-row>
           </el-form>
-          <div style="margin-bottom:10px">
-             <el-button type="danger" class="el-icon-delete" size='mini'>删除选中</el-button>
-             <el-button type="primary" class="el-icon-plus"  size='mini'>增加商品</el-button>
-          </div>
-           <el-table :data="typeForm" v-loading="dataListLoading"
+           <el-table :data="goodsData" v-loading="dataListLoading"
            :row-key="row => row.index" ref="eltable"
            @selection-change="handleSelectionChange">
             <el-table-column
@@ -66,7 +66,6 @@
             </el-table-column>
           </el-table>
         </el-card>
-       
          <!-- 分页 -->
         <el-pagination
           background
@@ -76,7 +75,6 @@
           :page-size=pageSize
           @current-change="currentChangeHandle">
         </el-pagination>
-
     </div>
   </div>
 </template>
@@ -92,9 +90,11 @@ export default {
       dataListLoading:false,
       goodsType:'',//商品类别
       supplier:'',//供应商
+      name:'',//商品名称
       goodsTypeList:[{id:'',label:'请选择'},{id:'1',label:'饮料汽水'},{id:'2',label:'膨化零食'}],
       supplierTypeList:[{id:'',label:'请选择'},{id:'1',label:'平板农场'},{id:'2',label:'沃尔玛场'}],
-      goodsTable:['index','id','goodsType','name','unit','supplier','purchasePrice','sellPrice','inventory']
+      goodsTable:['index','goodsId','goodsType','name','unit','supplier','purchasePrice','sellPrice','inventory'],
+      goodsData:[],
     }
   },
   components: {
@@ -104,7 +104,7 @@ export default {
     getDataLabel(type){
       const typeLabel = {
         index:'序号',
-        id:'商品编号',
+        goodsId:'商品编号',
         goodsType:'商品类别',
         name:'商品名称',
         unit:'单位',
@@ -122,7 +122,11 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;
-    }
+    },
+    indexMethod(index) {
+      const _page = this.page > 0 ? this.page - 1 : this.page;
+      return this.totalList - _page * this.pageSize - index;
+    },
   }
 }
 </script >
