@@ -1,10 +1,10 @@
 <template>
   <div>
     <HeadTop/>
-    <div class="tables" style="padding:30px">
+    <div class="tables" style="padding:20px">
        <div style="margin-bottom:10px;text-align: right">
           <el-button type="danger" class="el-icon-delete" >删除选中</el-button>
-          <el-button type="success" class="el-icon-plus" >增加商品</el-button>
+          <el-button type="success" class="el-icon-plus" @click="addGoods" >增加商品</el-button>
         </div>
         <el-card>
           <el-form label-width="100px">
@@ -114,6 +114,11 @@ export default {
         inventory:'库存'
       }
       return typeLabel[type] || '';
+    },
+    addGoods(){
+      this.$router.push({
+        path: '/goods-manage-goodsDetails'
+      });
     },
     editHandle(){},
     delHandle(){},

@@ -8,7 +8,11 @@ const main = r => require.ensure([], () => r(require('@/page/main')), 'main');
 const home = r => require.ensure([], () => r(require('@/page/home')), 'home');
 const typeList = r => require.ensure([], () => r(require('@/page/goods-manage/typeList.vue')), 'typeList');
 const goodsList = r => require.ensure([], () => r(require('@/page/goods-manage/goodsList.vue')), 'goodsList');
-
+const goodsDetails = r => require.ensure([], () => r(require('@/page/goods-manage/goodsDetails.vue')), 'goodsDetails');
+const supplierList = r => require.ensure([], () => r(require('@/page/goods-manage/supplierList.vue')), 'supplierList');
+const inventoryList = r => require.ensure([], () => r(require('@/page/goods-manage/inventoryList.vue')), 'inventoryList');
+const memberList = r => require.ensure([], () => r(require('@/page/user-manage/memberList.vue')), 'memberList');
+const userInfo = r => require.ensure([], () => r(require('@/page/user-manage/userInfo.vue')), 'userInfo');
 const routes = [
 	{
 		path: '/',
@@ -31,6 +35,32 @@ const routes = [
 			path: '/goods-manage-goodsList',
 			component: goodsList,
       meta: ['商品管理', '商品列表'],
+    },
+    {
+			path: '/goods-manage-goodsDetails',
+			component: goodsDetails,
+      meta: ['商品管理', '商品列表','商品编辑'],
+    },
+    {
+			path: '/goods-manage-supplierList',
+			component: supplierList,
+      meta: ['商品管理', '供应商列表'],
+    },
+    {
+			path: '/goods-manage-inventoryList',
+			component: inventoryList,
+      meta: ['商品管理', '库存管理'],
+    },
+
+    {
+			path: '/user-manage-memberList',
+			component: memberList,
+      meta: ['用户管理', '会员列表'],
+    },
+    {
+			path: '/user-manage-userInfo',
+			component: userInfo,
+      meta: ['用户管理', '个人信息'],
     },
     ]
   }

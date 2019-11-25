@@ -1,16 +1,9 @@
 <template>
-  <div>
-    <h2>奖品详情</h2>
+  <div style="padding:20px">
+    <HeadTop/>
+    <h2>商品详情</h2>
     <el-form :model="dataForm" :rules="rules" ref="dataForm" label-width="140px">
       <el-card>
-        <el-timeline>
-          <!-- ================活动设置=============== -->
-          <el-timeline-item
-            placement="top"
-            color="#0bbd87"
-            size="large"
-            timestamp="1、奖品设置"
-          >
             <el-row>
               <el-col :span="10">
                 <el-form-item label="商品名称" prop="name">
@@ -26,7 +19,7 @@
               </el-col>
             </el-row>
             <el-form-item label="商品编号" prop="goodsId">
-              <el-input v-model="dataForm.goodsId" placeholder="请输入商品编号" show-word-limit maxlength=6
+              <el-input v-model="dataForm.goodsId" placeholder="请输入商品编号" show-word-limit maxlength=6 style="width:300px"
                         clearable></el-input>
             </el-form-item>
             <el-form-item label="商品类别" >
@@ -52,7 +45,7 @@
               </el-upload>
             </el-form-item>
             <el-form-item label="单位" prop="goodsUnit">
-              <el-input v-model="dataForm.goodsUnit" placeholder="请输入商品编号" show-word-limit maxlength=6
+              <el-input v-model="dataForm.goodsUnit" placeholder="请输入商品编号" show-word-limit maxlength=6 style="width:300px"
                         clearable></el-input>
             </el-form-item>
             <el-form-item label="供应商" >
@@ -67,34 +60,29 @@
             </el-form-item>
             <el-form-item label="进价" prop="purchasePrice">
               <el-input v-model="dataForm.purchasePrice" placeholder="请输入商品进价" show-word-limit maxlength=6
-                        clearable></el-input><span class="tip">&nbsp;&nbsp;元</span>
+                        clearable style="width:300px"></el-input><span class="tip">&nbsp;&nbsp;元</span>
             </el-form-item>
             <el-form-item label="售价" prop="sellPrice">
               <el-input v-model="dataForm.sellPrice" placeholder="请输入商品售价" show-word-limit maxlength=6
-                        clearable></el-input><span class="tip">&nbsp;&nbsp;元</span>
+                        clearable style="width:300px"></el-input><span class="tip">&nbsp;&nbsp;元</span>
             </el-form-item>
             <el-form-item label="库存" prop="inventory">
               <el-input v-model="dataForm.inventory" placeholder="请输入商品库存" show-word-limit maxlength=6
-                        clearable></el-input>
+                        clearable style="width:300px"></el-input>
             </el-form-item>
-          </el-timeline-item>
-          <el-timeline-item placement="top" >
-            <el-card>
-              <el-form-item>
-                <el-button type="success" @click="submitForm" :loading="submitLoading">保存</el-button>
-                <el-button type="warning" @click="cancelForm" :loading="submitLoading">取消</el-button>
-                <el-button type="danger" @click="deleteForm" :loading="submitLoading" v-if="dataForm.id">删除活动
-                </el-button>
-              </el-form-item>
-            </el-card>
-          </el-timeline-item>
-        </el-timeline>
+      </el-card>
+      <el-card style="margin-top:20px">
+        <el-form-item>
+          <el-button type="success" @click="submitForm" :loading="submitLoading">保存</el-button>
+          <el-button type="warning" @click="cancelForm" :loading="submitLoading">取消</el-button>
+        </el-form-item>
       </el-card>
     </el-form>
   </div>
 </template>
 
 <script>
+import HeadTop from "../../components/headTop";
 export default {
   data(){
     const priceRequire = (rule, value, callback) => {
@@ -153,6 +141,9 @@ export default {
         ],
       }
     }
+  },
+  components: {
+    HeadTop,
   },
   methods: {
       handleAvatarSuccess(res, file) {
