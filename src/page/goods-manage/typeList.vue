@@ -36,7 +36,7 @@
             :modal-append-to-body='false'
             width='500px'>
       <el-form :model="addTypeForm" ref="addTypeForm" :rules="rules">
-        <el-form-item label="类别编号" prop="typeId">
+        <el-form-item label="类别编码" prop="typeId">
           <el-input v-model="addTypeForm.typeId" show-word-limit maxlength=12
                     clearable style="width:300px"></el-input>
         </el-form-item>

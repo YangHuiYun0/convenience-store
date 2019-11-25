@@ -1,7 +1,7 @@
 <template>
 	<div class="fillcontain">
 		<el-row style="height: 100%; position: fixed ;width:100%" class="tac">
-	  		<el-col :span="4" style="min-height: 100vh; background-color: #545c64; ">
+	  		<el-col :span="4" style="min-height: 100%; background-color: #545c64; ">
 					<div class="head">
 						便利店
 					</div>
@@ -10,6 +10,7 @@
 					class="el-menu-vertical-demo"
 					text-color="#fff"
 					background-color="#545c64"
+					unique-opened='true'
 					style="min-height: 100%; " router theme="dark">
 					<el-menu-item index="/home"><i class="el-icon-menu"></i>首页</el-menu-item>
 					<el-submenu index="2">
