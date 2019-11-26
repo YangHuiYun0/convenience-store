@@ -18,7 +18,7 @@
 							<span>商品管理</span>
 						</template>
 						<el-menu-item-group>
-							<el-menu-item index="/goods-manage-typeList" style="padding-left: 60px;">商品类别</el-menu-item>
+							<el-menu-item index="/goods-manage-goods" style="padding-left: 60px;">商品类别</el-menu-item>
 							<el-menu-item index="/goods-manage-goodsList" style="padding-left: 60px;">商品列表</el-menu-item>
 							<el-menu-item index="/goods-manage-inventoryList" style="padding-left: 60px;">库存管理</el-menu-item>
 							<el-menu-item index="/goods-manage-supplierList" style="padding-left: 60px;">供应商列表</el-menu-item>
