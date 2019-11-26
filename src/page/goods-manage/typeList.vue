@@ -69,7 +69,6 @@ export default {
       totalList:3,
       pageSize:10,
       dataListLoading:false,
-      addTypeVisible:false,
       typeForm:[],
       typeTable:['index','typeId','name','commit','status'],
       typeData:[

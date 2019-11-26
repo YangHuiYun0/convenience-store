@@ -70,6 +70,10 @@
               <el-input v-model="dataForm.inventory" placeholder="请输入商品库存" show-word-limit maxlength=6
                         clearable style="width:300px"></el-input>
             </el-form-item>
+            <el-form-item label="所获积分" prop="integral">
+              <el-input v-model="dataForm.integral" placeholder="请输入所获得的积分" show-word-limit maxlength=6
+                        clearable style="width:300px"></el-input>
+            </el-form-item>
       </el-card>
       <el-card style="margin-top:20px">
         <el-form-item>
@@ -93,6 +97,13 @@ export default {
       }
     }
     const inventoryRequire = (rule, value, callback) => {
+      if (!String(this.dataForm.inventory).match(/^\+?[1-9]\d*$/)) {
+        callback(new Error('请输入大于0的整数'));
+      }else{
+        callback();
+      }
+    }
+    const integralRequire = (rule, value, callback) => {
       if (!String(this.dataForm.inventory).match(/^\+?[1-9]\d*$/)) {
         callback(new Error('请输入大于0的整数'));
       }else{
@@ -138,6 +149,10 @@ export default {
         inventory:[
           { required: true, message: '请输入库存量', trigger: 'blur' },
           { required: true, trigger: 'change', validator: inventoryRequire }
+        ],
+        integral:[
+          { required: true, message: '请输入获得的积分', trigger: 'blur' },
+          { required: true, trigger: 'change', validator: integralRequire }
         ],
       }
     }

@@ -10,7 +10,7 @@
 					class="el-menu-vertical-demo"
 					text-color="#fff"
 					background-color="#545c64"
-					unique-opened='true'
+					:unique-opened=true
 					style="min-height: 100%; " router theme="dark">
 					<el-menu-item index="/home"><i class="el-icon-menu"></i>首页</el-menu-item>
 					<el-submenu index="2">
@@ -19,8 +19,8 @@
 							<span>商品管理</span>
 						</template>
 						<el-menu-item-group>
-							<el-menu-item index="/goods-manage-goods" style="padding-left: 60px;">商品类别</el-menu-item>
-							<el-menu-item index="/goods-manage-goodsList" style="padding-left: 60px;">商品列表</el-menu-item>
+							<el-menu-item index="/goods-manage-goods" style="padding-left: 60px;">商品列表</el-menu-item>
+							<!-- <el-menu-item index="/goods-manage-goodsList" style="padding-left: 60px;">商品列表</el-menu-item> -->
 							<el-menu-item index="/goods-manage-inventoryList" style="padding-left: 60px;">库存管理</el-menu-item>
 							<el-menu-item index="/goods-manage-supplierList" style="padding-left: 60px;">供应商列表</el-menu-item>
 						</el-menu-item-group>
@@ -42,8 +42,9 @@
 							<span>用户管理</span>
 						</template>
 						<el-menu-item-group>
-							<el-menu-item index="/user-manage-userInfo" style="padding-left: 60px;">个人信息</el-menu-item>
 							<el-menu-item index="/user-manage-memberList" style="padding-left: 60px;">会员列表</el-menu-item>
+							<el-menu-item index="/user-manage-staffList" style="padding-left: 60px;">店员列表</el-menu-item>
+							<el-menu-item index="/user-manage-userInfo" style="padding-left: 60px;">个人信息</el-menu-item>
 						</el-menu-item-group>
 					</el-submenu>
 				</el-menu>

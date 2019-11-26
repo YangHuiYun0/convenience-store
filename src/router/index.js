@@ -14,6 +14,7 @@ const supplierList = r => require.ensure([], () => r(require('@/page/goods-manag
 const inventoryList = r => require.ensure([], () => r(require('@/page/goods-manage/inventoryList.vue')), 'inventoryList');
 const memberList = r => require.ensure([], () => r(require('@/page/user-manage/memberList.vue')), 'memberList');
 const userInfo = r => require.ensure([], () => r(require('@/page/user-manage/userInfo.vue')), 'userInfo');
+const staffList = r => require.ensure([], () => r(require('@/page/user-manage/staffList.vue')), 'staffList');
 const routes = [
 	{
 		path: '/',
@@ -62,6 +63,11 @@ const routes = [
 			path: '/user-manage-memberList',
 			component: memberList,
       meta: ['用户管理', '会员列表'],
+    },
+    {
+			path: '/user-manage-staffList',
+			component: staffList,
+      meta: ['用户管理', '店员列表'],
     },
     {
 			path: '/user-manage-userInfo',
