@@ -15,6 +15,9 @@ const inventoryList = r => require.ensure([], () => r(require('@/page/goods-mana
 const memberList = r => require.ensure([], () => r(require('@/page/user-manage/memberList.vue')), 'memberList');
 const userInfo = r => require.ensure([], () => r(require('@/page/user-manage/userInfo.vue')), 'userInfo');
 const staffList = r => require.ensure([], () => r(require('@/page/user-manage/staffList.vue')), 'staffList');
+const checkstand = r => require.ensure([], () => r(require('@/page/sales-manage/checkstand.vue')), 'checkstand');
+const salesRecord = r => require.ensure([], () => r(require('@/page/sales-manage/salesRecord.vue')), 'salesRecord');
+const totalSales = r => require.ensure([], () => r(require('@/page/sales-manage/totalSales.vue')), 'totalSales');
 const routes = [
 	{
 		path: '/',
@@ -73,6 +76,22 @@ const routes = [
 			path: '/user-manage-userInfo',
 			component: userInfo,
       meta: ['用户管理', '个人信息'],
+    },
+
+    {
+			path: '/sales-manage-checkstand',
+			component: checkstand,
+      meta: ['销售管理', '收银台'],
+    },
+    {
+			path: '/sales-manage-salesRecord',
+			component: salesRecord,
+      meta: ['销售管理', '销售记录'],
+    },
+    {
+			path: '/sales-manage-totalSales',
+			component: totalSales,
+      meta: ['销售管理', '销售统计'],
     },
     ]
   }

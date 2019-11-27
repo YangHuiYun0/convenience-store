@@ -31,9 +31,9 @@
 							<span>销售管理</span>
 						</template>
 						<el-menu-item-group>
-							<el-menu-item index="3-1" style="padding-left: 60px;">收银台</el-menu-item>
-							<el-menu-item index="3-2" style="padding-left: 60px;">销售记录</el-menu-item>
-							<el-menu-item index="3-3" style="padding-left: 60px;">销售统计</el-menu-item>
+							<el-menu-item index="/sales-manage-checkstand" style="padding-left: 60px;">收银台</el-menu-item>
+							<el-menu-item index="/sales-manage-salesRecord" style="padding-left: 60px;">销售记录</el-menu-item>
+							<el-menu-item index="/sales-manage-totalSales" style="padding-left: 60px;">销售统计</el-menu-item>
 						</el-menu-item-group>
 					</el-submenu>
 					<el-submenu index="4">

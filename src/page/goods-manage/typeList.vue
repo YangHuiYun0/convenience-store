@@ -37,15 +37,15 @@
             width='500px'>
       <el-form :model="addTypeForm" ref="addTypeForm" :rules="rules">
         <el-form-item label="类别编码" prop="typeId">
-          <el-input v-model="addTypeForm.typeId" show-word-limit maxlength=12
+          <el-input v-model="addTypeForm.typeId" placeholder="请输入类别编码" show-word-limit maxlength=12
                     clearable style="width:300px"></el-input>
         </el-form-item>
         <el-form-item label="类别名称" prop="name">
-          <el-input v-model="addTypeForm.name" show-word-limit maxlength=12
+          <el-input v-model="addTypeForm.name"  placeholder="请输入类别名称" show-word-limit maxlength=12
                     clearable style="width:300px"></el-input>
         </el-form-item>
         <el-form-item label="类别介绍" prop="commit">
-          <el-input v-model="addTypeForm.commit" type="textarea" :rows="2"  style="width:300px"></el-input>
+          <el-input v-model="addTypeForm.commit"  placeholder="请输入类别介绍" type="textarea" :rows="2"  style="width:300px"></el-input>
         </el-form-item>
         <el-form-item label="是否启用" prop="status">
             <el-radio v-model="addTypeForm.status" label='true'>启用</el-radio>
