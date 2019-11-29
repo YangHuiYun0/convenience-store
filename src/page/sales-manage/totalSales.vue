@@ -2,7 +2,7 @@
   <div>
     <HeadTop/>
     <div class="tables" style="padding:20px">
-      <el-table :data="totalData" v-loading="dataListLoading" ref="totalData">
+      <el-table :data="totalData" v-loading="dataListLoading" ref="totalData"  show-summary>
         <el-table-column v-for="item in totalSalesTable"
             :label="getDataLabel(item)"
             :key="item" :prop="item"
@@ -30,8 +30,9 @@ export default {
       totalList:3,
       pageSize:12,
       dataListLoading:false,
-      totalData:[],
-      totalSalesTable:['index','goodsName','goodsType','supplierName','soldNum','sellPrice','totalPrice'],
+      totalData:[{index:1,goodsName:'可口可乐',goodsType:'汽水饮料',supplierName:'万达物业',soldNum:'4',sellPrice:'10元',totalPrice:'40'},
+      {index:2,goodsName:'苹果',goodsType:'水果',supplierName:'晚安农场',soldNum:'5',sellPrice:'5元',totalPrice:'25'}],
+      totalSalesTable:['index','goodsName','goodsType','supplierName','sellPrice','soldNum','totalPrice'],
     }
   },
   components: {
@@ -58,6 +59,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
  .el-pagination.is-background .el-pager li:not(.disabled).active {
     background-color: #76b852;
     color: #FFF;

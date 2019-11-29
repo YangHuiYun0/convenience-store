@@ -4,6 +4,7 @@
     <div class="tables" style="padding:20px">
       <div style="margin-bottom:10px;text-align: right">
         <el-button type="success" class="el-icon-plus" @click="addMember" >增加会员</el-button>
+        <el-button type="success" class="el-icon-user" @click="levelManage" >会员等级管理</el-button>
       </div>
        <el-card>
           <el-form label-width="100px" style="margin-bottom:10px">
@@ -73,11 +74,54 @@
             <el-radio v-model="memberForm.status" label='0'>冻结</el-radio>
         </el-form-item>
         <el-form-item label="积分" prop="integral">
-          <el-input v-model="memberForm.integral" disabled=true style="width:150px"></el-input>
+          <el-input v-model="memberForm.integral" :disabled='isChange' style="width:150px"></el-input>
           <span class="tip">&nbsp;&nbsp;新用户默认10积分</span>
         </el-form-item>
         <el-form-item label="手机号" prop="mobile">
           <el-input v-model="memberForm.mobile" placeholder="请输入手机号" show-word-limit maxlength=11
+                    clearable style="width:300px"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="cancel">取消</el-button>
+        <el-button type="primary" @click="formSubmit" :loading="submitLoading">确定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog title="会员等级管理"
+            :before-close="beforeClose"
+            :visible.sync="levelVisible"
+            :modal-append-to-body='false'
+            width='500px'>
+      <el-form :model="levelForm" ref="levelForm" :rules="rules" >
+        <div v-for="(item,index) in IntegralList" :key="index">
+          {{ item }}
+        </div>>
+         <el-form-item label="普通会员" prop="ordinary">
+          <el-input v-model="levelForm.startIntegral" placeholder="请输入积分范围" 
+                    clearable style="width:300px"></el-input>
+          <span>&nbsp;&nbsp;至&nbsp;&nbsp;</span>
+          <el-input v-model="item.endIntegral" placeholder="请输入积分范围" 
+                  clearable style="width:300px"></el-input>
+        </el-form-item>
+
+        <el-form-item label="白银会员" prop="silver">
+          <el-input v-model="levelForm.silver" placeholder="请输入积分范围" 
+                    clearable style="width:300px"></el-input>
+        </el-form-item>
+        <el-form-item label="黄金会员" prop="gold">
+          <el-input v-model="levelForm.gold" placeholder="请输入积分范围" 
+                    clearable style="width:300px"></el-input>
+        </el-form-item>
+        <el-form-item label="白金会员" prop="platinum">
+          <el-input v-model="levelForm.platinum" placeholder="请输入积分范围"
+                    clearable style="width:300px"></el-input>
+        </el-form-item>
+        <el-form-item label="钻石会员" prop="jewel">
+          <el-input v-model="levelForm.jewel" placeholder="请输入积分范围" 
+                    clearable style="width:300px"></el-input>
+        </el-form-item>
+        <el-form-item label="超级会员" prop="super">
+          <el-input v-model="levelForm.super" placeholder="请输入积分范围"
                     clearable style="width:300px"></el-input>
         </el-form-item>
       </el-form>
@@ -104,17 +148,19 @@ export default {
       page:0,
       totalList:3,
       pageSize:10,
+      isChange:true,
       dataListLoading:false,
       isShowList:true,
       dialogVisible:false,
+      levelVisible:false,
       submitLoading:false,
       memberName:'',
       mobile:'',
       memberData:[
-        {index:'1',memberId:'1',memberName:'杨先生',sex:'男',integral:'32',joinTime:'2019.11.25',mobile:'15892089899',status:1},
-        {index:'2',memberId:'2',memberName:'陈女士',sex:'女',integral:'33',joinTime:'2019.11.05',mobile:'15892089899',status:0},
+        {index:'1',memberId:'1',memberName:'杨先生',sex:'男',level:'普通会员',integral:'32',joinTime:'2019.11.25',mobile:'15892089899',status:1},
+        {index:'2',memberId:'2',memberName:'陈女士',sex:'女',level:'黄金会员',integral:'333',joinTime:'2019.11.05',mobile:'15892089899',status:0},
       ],
-      memberTable:['index','memberId','memberName','sex','integral','joinTime','mobile','status'],
+      memberTable:['index','memberId','memberName','sex','level','integral','joinTime','mobile','status'],
       memberForm:{
         memberId:'',
         memberName:'',
@@ -122,6 +168,14 @@ export default {
         integral:'10',
         mobile:'',
         status:'1'
+      },
+      levelForm:{
+        ordinary:'',
+        silver:'',
+        gold:'',
+        platinum:'',
+        jewel:'',
+        super:'',
       },
       rules:{
         memberId:[
@@ -148,6 +202,7 @@ export default {
         memberName:'姓名',
         sex:'性别',
         integral:'积分',
+        level:'会员等级',
         joinTime:'注册时间',
         mobile:'手机号',
         status:'是否冻结'
@@ -157,11 +212,16 @@ export default {
     addMember(){
       this.dialogVisible = true;
     },
+    levelManage(){
+      this.levelVisible = true;
+    },
     beforeClose() {
       this.cancel();
     },
     cancel() {
       this.$refs.memberForm.resetFields();
+      this.$refs.levelForm.resetFields();
+      this.levelVisible = false;
       this.submitLoading = false;
       this.dialogVisible = false;
     },
@@ -187,6 +247,7 @@ export default {
         // 再去请求接口  渲染表格
       })
     },
+    
   }
 }
 </script>

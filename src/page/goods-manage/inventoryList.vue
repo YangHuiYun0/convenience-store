@@ -15,16 +15,16 @@
         </el-table-column>
         <!-- 'totalAmount', -->
         <el-table-column label="库存量" align="center" min-width="110px">
-        <template slot-scope="scope">
-          <template v-if="scope.row.edit">
-            <el-input v-model="scope.row.totalAmount" class="edit-input" size="small" style="width:100px" />
-            <el-button  class="cancel-btn" size="small" icon="el-icon-refresh" type="warning"  @click="cancelEdit(scope.row)">
-              取消
-            </el-button>
+          <template slot-scope="scope">
+            <template v-if="scope.row.edit">
+              <el-input v-model="scope.row.totalAmount" class="edit-input" size="small" style="width:100px" />
+              <el-button  class="cancel-btn" size="small" icon="el-icon-refresh" type="warning"  @click="cancelEdit(scope.row)">
+                取消
+              </el-button>
+            </template>
+            <span v-else>{{ scope.row.totalAmount }}</span>
           </template>
-          <span v-else>{{ scope.row.totalAmount }}</span>
-        </template>
-      </el-table-column>
+        </el-table-column>
         <el-table-column label="操作" width="150" align="center">
           <template slot-scope="scope"> 
             <!--编辑 删除 -->
