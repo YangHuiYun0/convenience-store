@@ -2,7 +2,7 @@
   <div>
     <HeadTop/>
     <div class="tables" style="padding:20px">
-      <div style="margin-bottom:10px;text-align: right">
+      <div style="margin-bottom:20px;text-align: right">
         <el-button  type="success" class="el-icon-plus modify-btn right-btn" size="small"
                   @click="addSupplier()">增加供应商</el-button>
       </div>
@@ -45,6 +45,10 @@
             <el-input v-model="addSupplierForm.supplierName" show-word-limit maxlength=12
                       clearable style="width:300px"></el-input>
           </el-form-item>
+          <el-form-item label="联系方式" prop="supplierMobie">
+            <el-input v-model="addSupplierForm.supplierMobie" show-word-limit maxlength=11
+                      clearable style="width:300px"></el-input>
+          </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="cancel">取消</el-button>
@@ -58,6 +62,13 @@
 import HeadTop from "../../components/headTop";
 export default {
   data(){
+    const mobileRequire = (rule, value, callback) => {
+      if (!String(this.addSupplierForm.supplierMobie).match(/^[1][3,4,5,6,7,8,9][0-9]{9}$/)) {
+        callback(new Error('手机号码格式不正确'));
+      } else {
+        callback();
+      }
+    }
     return{
       page:0,
       totalList:3,
@@ -66,14 +77,15 @@ export default {
       isShowList:true,
       submitLoading:false,
       dialogVisible:false,
-      supplierTable:['index','supplierId','supplierName'],
+      supplierTable:['index','supplierId','supplierName','supplierMobie'],
       supplierData:[
-        {index:'1',supplierId:'1111222',supplierName:'有机农场'},
-        {index:'1',supplierId:'1111222',supplierName:'永辉农场'},
-        {index:'1',supplierId:'1111222',supplierName:'达利园企业'}],
+        {index:'1',supplierId:'1111222',supplierName:'有机农场',supplierMobie:'164749246932'},
+        {index:'1',supplierId:'1111222',supplierName:'永辉农场',supplierMobie:'63294392473'},
+        {index:'1',supplierId:'1111222',supplierName:'达利园企业',supplierMobie:'13672639403'}],
       addSupplierForm:{
         supplierId:'',
         supplierName:'',
+        supplierMobie:'',
       },
       rules:{
         supplierName:[
@@ -82,6 +94,10 @@ export default {
         supplierId:[
           {required: true, message: '请输入供应商编号', trigger: 'blur'}
         ],
+        supplierMobie:[
+          { required: true, message: '请输入手机号', trigger: 'blur' },
+          { required: true, trigger: 'change', validator: mobileRequire }
+        ]
       }
     }
   },
@@ -94,6 +110,7 @@ export default {
         index:'序号',
         supplierId:'供应商编号',
         supplierName:'供应商名称',
+        supplierMobie:'联系方式',
       }
       return typeLabel[type] || '';
     },

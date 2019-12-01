@@ -93,15 +93,15 @@
             :modal-append-to-body='false'
             width='500px'>
       <el-form :model="levelForm" ref="levelForm" :rules="rules" >
-        <div v-for="(item,index) in IntegralList" :key="index">
+        <!-- <div v-for="(item,index) in IntegralList" :key="index">
           {{ item }}
-        </div>>
+        </div>> -->
          <el-form-item label="普通会员" prop="ordinary">
-          <el-input v-model="levelForm.startIntegral" placeholder="请输入积分范围" 
+          <el-input v-model="levelForm.ordinary" placeholder="请输入积分范围" 
                     clearable style="width:300px"></el-input>
-          <span>&nbsp;&nbsp;至&nbsp;&nbsp;</span>
+          <!-- <span>&nbsp;&nbsp;至&nbsp;&nbsp;</span>
           <el-input v-model="item.endIntegral" placeholder="请输入积分范围" 
-                  clearable style="width:300px"></el-input>
+                  clearable style="width:300px"></el-input> -->
         </el-form-item>
 
         <el-form-item label="白银会员" prop="silver">
@@ -219,8 +219,8 @@ export default {
       this.cancel();
     },
     cancel() {
-      this.$refs.memberForm.resetFields();
-      this.$refs.levelForm.resetFields();
+      // this.$refs.memberForm.resetFields();
+      // this.$refs.levelForm.resetFields();
       this.levelVisible = false;
       this.submitLoading = false;
       this.dialogVisible = false;

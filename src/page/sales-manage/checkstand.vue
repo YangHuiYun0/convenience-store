@@ -10,17 +10,20 @@
           <span> 购买商品</span>
          </div>
          <div class="upload">
-          <el-upload
-            action=""
-            list-type="picture-card"
-            :on-preview="handlePictureCardPreview"
+         <el-upload
+            class="upload-demo"
+            action
+            :show-file-list='false'
+            :auto-upload='false'
+            :on-preview="handlePreview"
             :on-remove="handleRemove"
-            :auto-upload='false'>
-            <i class="el-icon-plus"></i>
+            :before-remove="beforeRemove"
+            multiple
+            :limit="1"
+            :on-exceed="handleExceed"
+            :file-list="fileList">
+            <el-button size="small" type="primary">点击上传</el-button>
           </el-upload>
-          <el-dialog :visible.sync="dialogVisible">
-            <img width="100%" :src="dialogImageUrl" alt="">
-          </el-dialog>
          </div>
           <div class="title">
           <i class="el-icon-s-goods title-icon"></i>
@@ -77,6 +80,7 @@ import HeadTop from "../../components/headTop";
 export default {
   data(){
     return{
+      fileList:[],
       mobile:'',
       dataListLoading:false,
       dialogImageUrl: '',
@@ -102,18 +106,24 @@ export default {
       }
       return typeLabel[type] || '';
     },
-    handleRemove(file, fileList) {
-      console.log(file, fileList);
-    },
-    // 选择图片
-    handlePictureCardPreview(file) {
-      this.dialogImageUrl = file.url;
-      this.dialogVisible = true;
-    },
+
     // 结算单个商品的总价
     settlementTotal(_item){
       return Number(_item.sellPrice) *Number(_item.soldNum)
-    }
+    },
+
+     handleRemove(file, fileList) {
+        console.log(file, fileList);
+      },
+      handlePreview(file) {
+        console.log(file);
+      },
+      handleExceed(files, fileList) {
+        this.$message.warning('一次只能上传一件商品');
+      },
+      beforeRemove(file, fileList) {
+        return this.$confirm(`确定移除 ${ file.name }？`);
+      }
   }
 }
 </script>

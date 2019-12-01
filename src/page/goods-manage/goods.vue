@@ -4,7 +4,7 @@
     <HeadTop/>
      <div class="tables" style="padding:20px">
       <el-row style="width: 100%">
-        <el-col :xs="10" :sm="10" :md="8" :lg="6" :xl="4" class="aside">
+        <el-col :xs="10" :sm="10" :md="8" :lg="6" :xl="4"  class="aside">
           <div v-loading="isLoading" class="comp-tree">
 		        <el-button class="comp-tr-top" 
               type="primary" 
