@@ -10,19 +10,15 @@
           <span> 购买商品</span>
          </div>
          <div class="upload">
-         <el-upload
+          <el-upload
             class="upload-demo"
-            action
-            :show-file-list='false'
-            :auto-upload='false'
-            :on-preview="handlePreview"
+            action=""
+            :file-list="stockFileList"
+            :on-change="handleChange"
             :on-remove="handleRemove"
-            :before-remove="beforeRemove"
-            multiple
-            :limit="1"
-            :on-exceed="handleExceed"
-            :file-list="fileList">
-            <el-button size="small" type="primary">点击上传</el-button>
+            :before-upload="beforeUpload"
+            :auto-upload="false">
+            <el-button size="small" type="primary">上传券码</el-button>
           </el-upload>
          </div>
           <div class="title">
@@ -80,7 +76,7 @@ import HeadTop from "../../components/headTop";
 export default {
   data(){
     return{
-      fileList:[],
+      stockFileList:[],
       mobile:'',
       dataListLoading:false,
       dialogImageUrl: '',
@@ -111,19 +107,28 @@ export default {
     settlementTotal(_item){
       return Number(_item.sellPrice) *Number(_item.soldNum)
     },
-
-     handleRemove(file, fileList) {
-        console.log(file, fileList);
-      },
-      handlePreview(file) {
-        console.log(file);
-      },
-      handleExceed(files, fileList) {
-        this.$message.warning('一次只能上传一件商品');
-      },
-      beforeRemove(file, fileList) {
-        return this.$confirm(`确定移除 ${ file.name }？`);
+    // 选择文件
+    handleChange(file, fileList) {
+      console.log(file);
+      const spl = file.name.split('.');
+      if (spl[spl.length - 1] !== 'png') {
+        this.$message.error('文件格式不符，请上传png格式的文件');
+        this.stockFileList = [];
+        return false;
       }
+      this.stockFileList = fileList.slice(-1);
+    },
+    beforeUpload(file) {
+      const spl = file.name.split('.');
+      if (spl[spl.length - 1] !== 'png') {
+        this.$message.error('文件格式不符，请上传 csv 格式的文件');
+        this.stockFileList = [];
+        return false;
+      }
+    },
+    handleRemove(file, fileList) {
+      this.stockFileList = fileList;
+    },
   }
 }
 </script>
