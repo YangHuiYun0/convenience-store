@@ -37,16 +37,20 @@
              :modal-append-to-body='false'
              width='500px'>
         <el-form :model="addSupplierForm" ref="addSupplierForm" :rules="rules">
-          <el-form-item label="供应商编号" prop="supplierId">
-            <el-input v-model="addSupplierForm.supplierId" show-word-limit maxlength=12
+          <el-form-item label="供应商编号" prop="supplierNum">
+            <el-input v-model="addSupplierForm.supplierNum" show-word-limit maxlength=12
                       clearable style="width:300px"></el-input>
           </el-form-item>
           <el-form-item label="供应商名称" prop="supplierName">
             <el-input v-model="addSupplierForm.supplierName" show-word-limit maxlength=12
                       clearable style="width:300px"></el-input>
           </el-form-item>
-          <el-form-item label="联系方式" prop="supplierMobie">
-            <el-input v-model="addSupplierForm.supplierMobie" show-word-limit maxlength=11
+          <el-form-item label="联系人" prop="supplierLinkname">
+            <el-input v-model="addSupplierForm.supplierLinkname" show-word-limit maxlength=12
+                      clearable style="width:300px"></el-input>
+          </el-form-item>
+          <el-form-item label="联系方式" prop="supplierLinktel">
+            <el-input v-model="addSupplierForm.supplierLinktel" show-word-limit maxlength=11
                       clearable style="width:300px"></el-input>
           </el-form-item>
         </el-form>
@@ -60,10 +64,11 @@
 
 <script>
 import HeadTop from "../../components/headTop";
+import {getSupplierList,addSupplier  } from "../../api/goods";
 export default {
   data(){
     const mobileRequire = (rule, value, callback) => {
-      if (!String(this.addSupplierForm.supplierMobie).match(/^[1][3,4,5,6,7,8,9][0-9]{9}$/)) {
+      if (!String(this.addSupplierForm.supplierLinktel).match(/^[1][3,4,5,6,7,8,9][0-9]{9}$/)) {
         callback(new Error('手机号码格式不正确'));
       } else {
         callback();
@@ -77,24 +82,36 @@ export default {
       isShowList:true,
       submitLoading:false,
       dialogVisible:false,
-      supplierTable:['index','supplierId','supplierName','supplierMobie'],
-      supplierData:[
-        {index:'1',supplierId:'1111222',supplierName:'有机农场',supplierMobie:'164749246932'},
-        {index:'1',supplierId:'1111222',supplierName:'永辉农场',supplierMobie:'63294392473'},
-        {index:'1',supplierId:'1111222',supplierName:'达利园企业',supplierMobie:'13672639403'}],
+      supplierTable:['index','supplierNum','supplierName','supplierLinkname','supplierLinktel'],
+      supplierData:[],
+      aa:{
+        createTime: "20191203182439577",
+        id: "dabd23c972d0eee3ed91b24f8e6a1899",
+        supplierLinkname: "赵本山",
+        supplierLinktel: "15892055087",
+        supplierName: "农夫山泉",
+        supplierNum: "123456",
+        updateTime: "20191203185324038",
+        validFlag: "0"
+      },
       addSupplierForm:{
-        supplierId:'',
+        id: '',
+        supplierNum:'',
         supplierName:'',
-        supplierMobie:'',
+        supplierLinkname:'',
+        supplierLinktel:'',
       },
       rules:{
         supplierName:[
           {required: true, message: '请输入供应商名称', trigger: 'blur'}
         ],
-        supplierId:[
+        supplierNum:[
           {required: true, message: '请输入供应商编号', trigger: 'blur'}
         ],
-        supplierMobie:[
+        supplierLinkname:[
+          {required: true, message: '请输入联系人名字', trigger: 'blur'}
+        ],
+        supplierLinktel:[
           { required: true, message: '请输入手机号', trigger: 'blur' },
           { required: true, trigger: 'change', validator: mobileRequire }
         ]
@@ -104,19 +121,33 @@ export default {
   components: {
     HeadTop,
   },
+  mounted(){
+    this.getInfo();
+  },
   methods:{
     getDataLabel(type){
       const typeLabel = {
         index:'序号',
-        supplierId:'供应商编号',
+        supplierNum:'供应商编号',
         supplierName:'供应商名称',
-        supplierMobie:'联系方式',
+        supplierLinkname:'联系人',
+        supplierLinktel:'联系方式',
       }
       return typeLabel[type] || '';
     },
-    addSupplier(){
-
+    getInfo(){
+      const that = this;
+      getSupplierList({
+        page:this.page,
+        size:this.pageSize
+      }).then(res=>{
+        if(res && res.code === 200){
+          that.supplierData = res.data.rows;
+          that.totalList = res.data.pages;
+        }
+      },()=>{})
     },
+
     currentChangeHandle(val){
       this.page = val;
     },
@@ -140,16 +171,24 @@ export default {
           this.$message.error('请填写完整再保存');
           return false;
         }
-        var _index = this.supplierData.length;
-        this.addSupplierForm['index'] = _index+1;
-        this.typeData[_index] = this.addSupplierForm;
+        addSupplier(that.addSupplierForm.id,that.addSupplierForm).then(res=>{
+          console.log('res',res);
+          if(res&&res.code ===200){
+            this.$message({
+            type: 'success',
+            message: `${that.addSupplierForm.id?'修改':'增加'}成功`
+          });
+            that.addSupplierForm.id = res.data.id;
+          }
+        })
+
+        this.typeData.push(this.addSupplierForm);
         this.isShowList = false;
         this.$nextTick(()=>{
           this.isShowList = true;
         })
         this.dialogVisible = false;
         this.submitLoading = false;
-        // 再去请求接口  渲染表格
       })
     },
   },

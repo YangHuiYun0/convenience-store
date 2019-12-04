@@ -1,7 +1,7 @@
 import webConfig from '@/../config/index.js';
-import { login, getUserInfo } from '../../api/login';
-import { getToken, setToken } from '../../utils/auth';
-import { clearLoginInfo } from '../../utils';
+// import { login, getUserInfo } from '../../api/login';
+import { getToken, setToken } from '../../util/auth';
+import { clearLoginInfo } from '../../util/index';
 
 const user = {
   state: {

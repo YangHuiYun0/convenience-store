@@ -15,6 +15,6 @@ export function isAuth(key) {
  */
 export function clearLoginInfo() {
   removeToken();
-  store.commit('resetStore');
+  // store.commit('resetStore');
   router.options.isAddDynamicMenuRoutes = false;
 }

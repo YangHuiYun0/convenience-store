@@ -20,6 +20,8 @@
 </template>
 
 <script>
+import { getLogin } from "../api/login";
+import { getToken, setToken } from '../util/auth';
 export default {
   data(){
     return{
@@ -37,11 +39,18 @@ export default {
     handleLogin(){
        this.$refs.loginForm.validate(valid => {
         if (!valid) return false;
-        this.$message({
-          type: 'success',
-          message: '登录成功'
-        });
-				this.$router.push('/home')
+        getLogin({
+          userName:this.loginForm.username,
+          password:this.loginForm.password
+        }).then(res=>{
+          console.log('res',res);
+          this.$message({
+            type: 'success',
+            message: '登录成功'
+          });
+          this.$router.push('/home')
+        }).catch()
+       
       });
     },
   }
