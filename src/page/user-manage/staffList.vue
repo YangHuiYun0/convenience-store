@@ -11,7 +11,7 @@
           <el-input v-model="name" style="width:200px" placeholder="请输入店员名字"></el-input>
           <el-button type="info" >查询</el-button>
       </div>
-      <el-table :data="staffData" v-loading="dataListLoading" ref="eltable" v-if="isShowList">
+      <el-table :data="staffData" v-loading="dataListLoading" ref="eltable">
         <el-table-column v-for="(item,index) in staffTable"
             :label="getDataLabel(item)"
             :width="(index === 0 && 50)"
@@ -41,43 +41,25 @@
             :modal-append-to-body='false'
             width='500px'>
       <el-form :model="staffForm" ref="staffForm" :rules="rules">
-        <el-form-item label="店员工号" prop="workNumber">
-          <el-input v-model="staffForm.workNumber"  placeholder="请输入店员工号"  show-word-limit maxlength=12
-                    clearable style="width:300px"></el-input>
-        </el-form-item>
-        <el-form-item label="店员名字" prop="name">
-          <el-input v-model="staffForm.name"  placeholder="请输入店员名字"  show-word-limit maxlength=6
-                    clearable style="width:300px"></el-input>
-        </el-form-item>
-        <el-form-item label="用户名" prop="loginName">
-          <el-input v-model="staffForm.loginName"  placeholder="请输入店员登录用户名"  show-word-limit maxlength=12
+        <el-form-item label="用户名" prop="userName">
+          <el-input v-model="staffForm.userName"  placeholder="请输入店员登录用户名"  show-word-limit maxlength=12
                     clearable style="width:300px"></el-input>
         </el-form-item>
         <el-form-item label="登录密码" prop="password">
           <el-input v-model="staffForm.password"  placeholder="请输入店员登录密码"  show-word-limit minlength=6 maxlength=8
                     clearable style="width:300px"></el-input>
         </el-form-item>
-        <el-form-item label="联系方式" prop="mobile">
-          <el-input v-model="staffForm.mobile"  placeholder="请输入店员联系方式"  show-word-limit maxlength=11
+        <el-form-item label="性别">
+          <el-radio v-model="staffForm.sex" label='男'>男</el-radio>
+          <el-radio v-model="staffForm.sex" label='女'>女</el-radio>
+        </el-form-item>
+        <el-form-item label="店员名字" prop="name">
+          <el-input v-model="staffForm.name"  placeholder="请输入店员名字"  show-word-limit maxlength=6
                     clearable style="width:300px"></el-input>
         </el-form-item>
-        <el-form-item label="入职日期" prop="entryTime">
-          <el-date-picker
-            v-model="staffForm.entryTime"
-            value-format="timestamp"
-            type="date"
-            :picker-options="startPickerOptions"
-            placeholder="选择日期">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="离职日期" prop="leaveTime">
-          <el-date-picker
-            v-model="staffForm.leaveTime"
-            value-format="timestamp"
-            type="date"
-            :picker-options="endPickerOptions"
-            placeholder="选择日期">
-          </el-date-picker>
+        <el-form-item label="联系方式" prop="phone">
+          <el-input v-model="staffForm.phone"  placeholder="请输入店员联系方式"  show-word-limit maxlength=11
+                    clearable style="width:300px"></el-input>
         </el-form-item>
       </el-form>
        <span slot="footer" class="dialog-footer">
@@ -90,10 +72,11 @@
 
 <script>
 import HeadTop from "../../components/headTop";
+import { editStaff,addStaff,delStaff,getStaff } from '../../api/user';
 export default {
   data(){
-    const mobileRequire = (rule, value, callback) => {
-      if (!String(this.staffForm.mobile).match(/^[1][3,4,5,6,7,8,9][0-9]{9}$/)) {
+    const phoneRequire = (rule, value, callback) => {
+      if (!String(this.staffForm.phone).match(/^[1][3,4,5,6,7,8,9][0-9]{9}$/)) {
         callback(new Error('手机号码格式不正确'));
       } else {
         callback();
@@ -101,7 +84,7 @@ export default {
     }
 
     const passwordRequire = (rule, value, callback) => {
-      if(String(this.staffForm.mobile).length<6){
+      if(String(this.staffForm.phone).length<6){
         callback(new Error ('登录密码在6-8位之间'))
       }else{
         callback();
@@ -117,18 +100,17 @@ export default {
       workNumber:'',
       name:'',
       staffData:[],
-      staffTable:['index','workNumber','name','loginName','mobile','password','entryTime','leaveTime'],
+      staffTable:['index','name','userName','password','sex','phone','entryTime','leaveTime'],
       // 增加弹窗
       dialogVisible:false,
       staffForm:{
         id:'',
-        workNumber:'',
         name:'',
-        loginName:'',
-        mobile:'',
+        userName:'',
+        phone:'',
         password:'',
-        entryTime:'',
-        leaveTime:'',
+        sex:'',
+        userType:1,
       },
       rules:{
         workNumber:[
@@ -137,16 +119,16 @@ export default {
         name:[
           { required: true, message: '请输入店员名字', trigger: 'blur'}
         ],
-        loginName:[
+        userName:[
           { required: true, message: '请输入店员登录用户名', trigger: 'blur'}
         ],
         password:[
           { required: true, message: '请输入店员登录密码', trigger: 'blur'},
-          { required: true, trigger: 'change', validator: passwordRequire }
+          // { required: true, trigger: 'change', validator: passwordRequire }
         ],
-        mobile:[
+        phone:[
           { required: true, message: '请输入手机号', trigger: 'blur' },
-          { required: true, trigger: 'change', validator: mobileRequire }
+          { required: true, trigger: 'change', validator: phoneRequire }
         ],
         entryTime:[
           {required: true, message: '请选择入职日期', trigger: 'blur'},
@@ -178,10 +160,10 @@ export default {
     getDataLabel(type){
       const typeLabel = {
         index:'序号',
-        workNumber:'工号',
         name:'店员名字',
-        loginName:'用户名',
-        mobile:'联系方式',
+        userName:'用户名',
+        phone:'联系方式',
+        sex:'性别',
         password:'登录密码',
         entryTime:'入职日期',
         leaveTime:'离职日期',
@@ -212,13 +194,21 @@ export default {
           this.$message.error('请填写完整再保存');
           return false;
         }
-        this.isShowList = false;
-        this.$nextTick(()=>{
-          this.isShowList = true;
+         const submitFun = that.staffForm.id ?editStaff:addStaff;
+        submitFun(that.staffForm.id,that.staffForm).then(res=>{
+          console.log('res',res);
+          if(res&&res.code ===200){
+            this.$message({
+              type: 'success',
+              message: `${that.staffForm.id?'修改':'增加'}成功`
+            });
+            // that.getInfo();
+          }else{
+            this.$message.error(res.msg)
+          }
+          this.dialogVisible = false;
+          this.submitLoading = false;
         })
-        this.dialogVisible = false;
-        this.submitLoading = false;
-        // 再去请求接口  渲染表格
       })
     },
   }

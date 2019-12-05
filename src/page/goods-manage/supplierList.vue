@@ -4,10 +4,11 @@
     <div class="tables" style="padding:20px">
       <div style="margin-bottom:20px;text-align: right">
         <el-button  type="success" class="el-icon-plus modify-btn right-btn" size="small"
-                  @click="addSupplier()">增加供应商</el-button>
+                  @click="addSupplierInfo()">增加供应商</el-button>
       </div>
-        <el-table :data="supplierData" v-loading="dataListLoading" ref="eltable" v-if="isShowList">
+        <el-table :data="supplierData" v-loading="dataListLoading" ref="eltable" >
           <el-table-column v-for="(item,index) in supplierTable"
+              :type="index === 0?'index':''"
               :label="getDataLabel(item)"
               :width="(index === 0 && 50)"
               :key="item" :prop="item"
@@ -16,8 +17,8 @@
           <el-table-column label="操作" width="150" align="center">
             <template slot-scope="scope"> 
               <!--编辑 删除 -->
-              <i class="el-icon-edit"  @click="addSupplier(scope.row.id);"></i> 
-              <i class="el-icon-delete" @click="delHandle();"></i>
+              <i class="el-icon-edit"  @click="addSupplierInfo(scope.row.id);"></i> 
+              <i class="el-icon-delete" @click="delHandle(scope.row.id,scope.row.supplierName,scope.$index);"></i>
             </template>
           </el-table-column>
         </el-table>
@@ -38,7 +39,7 @@
              width='500px'>
         <el-form :model="addSupplierForm" ref="addSupplierForm" :rules="rules">
           <el-form-item label="供应商编号" prop="supplierNum">
-            <el-input v-model="addSupplierForm.supplierNum" show-word-limit maxlength=12
+            <el-input v-model="addSupplierForm.supplierNum" show-word-limit maxlength=6
                       clearable style="width:300px"></el-input>
           </el-form-item>
           <el-form-item label="供应商名称" prop="supplierName">
@@ -64,7 +65,9 @@
 
 <script>
 import HeadTop from "../../components/headTop";
-import {getSupplierList,addSupplier  } from "../../api/goods";
+import {getSupplierList,addSupplier,editSupplier,
+      getSupplier,
+      delSupplier,  } from "../../api/goods";
 export default {
   data(){
     const mobileRequire = (rule, value, callback) => {
@@ -76,24 +79,14 @@ export default {
     }
     return{
       page:0,
-      totalList:3,
-      pageSize:10,
+      totalList:0,
+      pageSize:2,
       dataListLoading:false,
       isShowList:true,
       submitLoading:false,
       dialogVisible:false,
       supplierTable:['index','supplierNum','supplierName','supplierLinkname','supplierLinktel'],
       supplierData:[],
-      aa:{
-        createTime: "20191203182439577",
-        id: "dabd23c972d0eee3ed91b24f8e6a1899",
-        supplierLinkname: "赵本山",
-        supplierLinktel: "15892055087",
-        supplierName: "农夫山泉",
-        supplierNum: "123456",
-        updateTime: "20191203185324038",
-        validFlag: "0"
-      },
       addSupplierForm:{
         id: '',
         supplierNum:'',
@@ -122,7 +115,7 @@ export default {
     HeadTop,
   },
   mounted(){
-    this.getInfo();
+    this.getInfo('init');
   },
   methods:{
     getDataLabel(type){
@@ -135,24 +128,64 @@ export default {
       }
       return typeLabel[type] || '';
     },
-    getInfo(){
+    getInfo(type){
+      if(type==='init'){
+        this.page = 0
+      }
       const that = this;
+      this.dataListLoading = true;
       getSupplierList({
         page:this.page,
         size:this.pageSize
       }).then(res=>{
         if(res && res.code === 200){
           that.supplierData = res.data.rows;
-          that.totalList = res.data.pages;
+          that.totalList = res.data.total;
+        }else{
+          that.$message.error(res.msg)
         }
-      },()=>{})
+        that.dataListLoading = false;
+      },()=>{
+        that.dataListLoading = false;
+      })
     },
 
     currentChangeHandle(val){
       this.page = val;
+      this.getInfo();
     },
-    addSupplier(id) {
+    addSupplierInfo(id) {
       this.dialogVisible = true;
+      const that = this;
+      if(id){
+        getSupplier(id).then(res=>{
+          if(res && res.code === 200){
+            that.addSupplierForm = res.data;
+          }else{
+            this.$message.error(res.msg)
+          }
+        }).catch((err)=>{
+          this.$message.error(err)
+        })
+      }
+    },
+    delHandle(id,name,index){
+      const that = this;
+       this.$confirm(`确定对「 ${name} 」进行「 删除 」操作?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          delSupplier(id).then(res=>{
+            if(res && res.code === 200){
+              that.$message.success(`删除供应商 ${name} 成功`);
+              that.supplierData.splice(index, 1);
+            }else{
+              that.$message.error(res.msg)
+            }
+          })
+        }).catch(()=>{});
+
     },
     // 弹窗
     beforeClose() {
@@ -171,24 +204,23 @@ export default {
           this.$message.error('请填写完整再保存');
           return false;
         }
-        addSupplier(that.addSupplierForm.id,that.addSupplierForm).then(res=>{
+        const submitFun = that.addSupplierForm.id ?editSupplier:addSupplier;
+        submitFun(that.addSupplierForm.id,that.addSupplierForm).then(res=>{
           console.log('res',res);
           if(res&&res.code ===200){
             this.$message({
-            type: 'success',
-            message: `${that.addSupplierForm.id?'修改':'增加'}成功`
-          });
-            that.addSupplierForm.id = res.data.id;
+              type: 'success',
+              message: `${that.addSupplierForm.id?'修改':'增加'}成功`
+            });
+            // that.addSupplierForm.id = res.data.id;
+            that.getInfo();
+          }else{
+            this.$message.error(res.msg)
           }
+          this.dialogVisible = false;
+          this.submitLoading = false;
         })
 
-        this.typeData.push(this.addSupplierForm);
-        this.isShowList = false;
-        this.$nextTick(()=>{
-          this.isShowList = true;
-        })
-        this.dialogVisible = false;
-        this.submitLoading = false;
       })
     },
   },
