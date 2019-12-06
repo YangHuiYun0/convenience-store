@@ -3,20 +3,22 @@
     <HeadTop/>
     <div class="tables" style="padding:20px">
       <div style="margin-bottom:10px;text-align: right">
-        <el-button type="success" class="el-icon-plus" @click="addMember" >增加会员</el-button>
+        <el-button type="success" class="el-icon-plus" @click="addMemberInfo" >增加会员</el-button>
         <el-button type="success" class="el-icon-user" @click="levelManage" >会员等级管理</el-button>
       </div>
        <el-card>
           <el-form label-width="100px" style="margin-bottom:10px">
             <el-input v-model="memberName" style="width:200px" placeholder="请输入姓名"></el-input>
             <el-input v-model="mobile" style="width:200px" placeholder="请输入手机号码"></el-input>
-            <el-button type="info" style="text-align: right;">查询</el-button>
+            <el-button type="info" style="text-align: right;"  @click="getInfo" >查询</el-button>
           </el-form>
           <el-table :data="memberData" v-loading="dataListLoading" ref="eltable" v-if="isShowList">
             <el-table-column v-for="(item,index) in memberTable"
+                :type="index === 0 ? 'index' : ''"
                 :label="getDataLabel(item)"
                 :width="(index === 0 && 50)"
                 :key="item" :prop="item"
+                :index="indexMethod"
                 align="center">
             </el-table-column>
             <el-table-column label="用户状态" prop="status" width="80" align="center">
@@ -36,8 +38,8 @@
             <el-table-column label="操作" width="150" align="center">
               <template slot-scope="scope"> 
                 <!--编辑 删除 -->
-                <i class="el-icon-edit"  @click="addMember(scope.row.id);"></i> 
-                <i class="el-icon-delete" @click="delHandle();"></i>
+                <i class="el-icon-edit"  @click="addMemberInfo(scope.row.id);"></i> 
+                <i class="el-icon-delete" @click="delHandle(scope.row.id,scope.row.name,scope.$index);"></i>
               </template>
             </el-table-column>
           </el-table>
@@ -87,54 +89,14 @@
         <el-button type="primary" @click="formSubmit" :loading="submitLoading">确定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="会员等级管理"
-            :before-close="beforeClose"
-            :visible.sync="levelVisible"
-            :modal-append-to-body='false'
-            width='500px'>
-      <el-form :model="levelForm" ref="levelForm" :rules="rules" >
-        <!-- <div v-for="(item,index) in IntegralList" :key="index">
-          {{ item }}
-        </div>> -->
-         <el-form-item label="普通会员" prop="ordinary">
-          <el-input v-model="levelForm.ordinary" placeholder="请输入积分范围" 
-                    clearable style="width:300px"></el-input>
-          <!-- <span>&nbsp;&nbsp;至&nbsp;&nbsp;</span>
-          <el-input v-model="item.endIntegral" placeholder="请输入积分范围" 
-                  clearable style="width:300px"></el-input> -->
-        </el-form-item>
 
-        <el-form-item label="白银会员" prop="silver">
-          <el-input v-model="levelForm.silver" placeholder="请输入积分范围" 
-                    clearable style="width:300px"></el-input>
-        </el-form-item>
-        <el-form-item label="黄金会员" prop="gold">
-          <el-input v-model="levelForm.gold" placeholder="请输入积分范围" 
-                    clearable style="width:300px"></el-input>
-        </el-form-item>
-        <el-form-item label="白金会员" prop="platinum">
-          <el-input v-model="levelForm.platinum" placeholder="请输入积分范围"
-                    clearable style="width:300px"></el-input>
-        </el-form-item>
-        <el-form-item label="钻石会员" prop="jewel">
-          <el-input v-model="levelForm.jewel" placeholder="请输入积分范围" 
-                    clearable style="width:300px"></el-input>
-        </el-form-item>
-        <el-form-item label="超级会员" prop="super">
-          <el-input v-model="levelForm.super" placeholder="请输入积分范围"
-                    clearable style="width:300px"></el-input>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="cancel">取消</el-button>
-        <el-button type="primary" @click="formSubmit" :loading="submitLoading">确定</el-button>
-      </span>
-    </el-dialog>
+    <MemberLevel v-if="levelVisible"></MemberLevel>
   </div>
 </template>
 
 <script>
 import HeadTop from "../../components/headTop";
+import MemberLevel from "./memberLevel";
 import { addStaff,delStaff,getStaff,editStaff } from "../../api/user";
 export default {
   data(){
@@ -170,14 +132,6 @@ export default {
         mobile:'',
         status:'1'
       },
-      levelForm:{
-        ordinary:'',
-        silver:'',
-        gold:'',
-        platinum:'',
-        jewel:'',
-        super:'',
-      },
       rules:{
         memberId:[
           { required: true, message: '请输入会员ID', trigger: 'blur' },
@@ -194,6 +148,7 @@ export default {
   },
   components: {
     HeadTop,
+    MemberLevel
   },
   methods:{
     getDataLabel(type){
@@ -210,8 +165,66 @@ export default {
       }
       return typeLabel[type] || '';
     },
-    addMember(){
+    getInfo(type){
+      if(type==='init'){
+        this.page = 0
+      }
+      const that = this;
+      this.dataListLoading = true;
+      getSupplierList({
+        page:this.page,
+        size:this.pageSize,
+        memberName:this.memberName,
+        mobile:this.mobile
+      }).then(res=>{
+        if(res && res.code === 200){
+          that.staffData = res.data.rows;
+          that.totalList = res.data.total;
+        }else{
+          that.$message.error(res.msg)
+        }
+        that.dataListLoading = false;
+      },()=>{
+        that.dataListLoading = false;
+      })
+    },
+    addMemberInfo(id){
       this.dialogVisible = true;
+      const that = this;
+      if(id){
+        getMember(id).then(res=>{
+          if(res && res.code === 200){
+            that.memberForm = res.data;
+          }else{
+            this.$message.error(res&&res.msg)
+          }
+        }).catch((err)=>{
+          this.$message.error(err)
+        });
+      }
+    },
+    // 删除会员
+    delHandle(id,name,index){
+      const that = this;
+      this.$confirm(`确定对「 ${name} 」进行「 删除 」操作?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        delSupplier(id).then(res=>{
+          if(res && res.code === 200){
+            that.$message.success(`删除店员 ${name} 成功`);
+            that.memberData.splice(index, 1);
+          }else{
+            that.$message.error(res.msg)
+          }
+        })
+      }).catch(()=>{});
+    },
+    // 第几条
+    indexMethod(index) {
+      const page = this.page > 0 ? this.page - 1 : this.page;
+      return this.listTotal - page * this.pageSize - index;
     },
     levelManage(){
       this.levelVisible = true;
@@ -222,12 +235,12 @@ export default {
     cancel() {
       // this.$refs.memberForm.resetFields();
       // this.$refs.levelForm.resetFields();
-      this.levelVisible = false;
       this.submitLoading = false;
       this.dialogVisible = false;
     },
     currentChangeHandle(val){
       this.page = val;
+      this.getInfo();
     },
     formSubmit(){
       const that = this;
@@ -236,16 +249,21 @@ export default {
           this.$message.error('请填写完整再保存');
           return false;
         }
-        var _index = this.memberData.length;
-        this.memberForm['index'] = _index+1;
-        this.memberData[_index] = this.memberForm;
-        this.isShowList = false;
-        this.$nextTick(()=>{
-          this.isShowList = true;
+        const submitFun = that.memberForm.id ?editMember:addMember;
+        submitFun(that.memberForm.id,that.memberForm).then(res=>{
+          console.log('res',res);
+          if(res&&res.code ===200){
+            this.$message({
+              type: 'success',
+              message: `${that.memberForm.id?'修改':'增加'}成功`
+            });
+            // that.getInfo();
+          }else{
+            this.$message.error(res.msg)
+          }
+          this.dialogVisible = false;
+          this.submitLoading = false;
         })
-        this.dialogVisible = false;
-        this.submitLoading = false;
-        // 再去请求接口  渲染表格
       })
     },
     

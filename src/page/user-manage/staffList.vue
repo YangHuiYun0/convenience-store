@@ -4,25 +4,26 @@
     <div class="tables" style="padding:20px">
       <div style="margin-bottom:10px;text-align: right">
         <el-button  type="success" class="el-icon-plus modify-btn right-btn" size="small"
-                  @click="addStaff()">增加店员</el-button>
+                  @click="addStaffInfo()">增加店员</el-button>
       </div>
        <div style="text-align: right; padding-right:80px">
-          <el-input v-model="workNumber" style="width:200px" placeholder="请输入店员工号"></el-input>
           <el-input v-model="name" style="width:200px" placeholder="请输入店员名字"></el-input>
-          <el-button type="info" >查询</el-button>
+          <el-button type="info" @click="getInfo" >查询</el-button>
       </div>
       <el-table :data="staffData" v-loading="dataListLoading" ref="eltable">
         <el-table-column v-for="(item,index) in staffTable"
+            :type="index === 0 ? 'index' : ''"
             :label="getDataLabel(item)"
             :width="(index === 0 && 50)"
             :key="item" :prop="item"
+            :index="indexMethod"
             align="center">
         </el-table-column>
         <el-table-column label="操作" width="150" align="center">
           <template slot-scope="scope"> 
             <!--编辑 删除 -->
-            <i class="el-icon-edit"  @click="editHandle();"></i> 
-            <i class="el-icon-delete" @click="delHandle();"></i>
+            <i class="el-icon-edit"  @click="addStaffInfo(scope.rows.id);"></i> 
+            <i class="el-icon-delete" @click="delHandle(scope.row.id,scope.row.name,scope.$index);"></i>
           </template>
         </el-table-column>
       </el-table>
@@ -130,14 +131,6 @@ export default {
           { required: true, message: '请输入手机号', trigger: 'blur' },
           { required: true, trigger: 'change', validator: phoneRequire }
         ],
-        entryTime:[
-          {required: true, message: '请选择入职日期', trigger: 'blur'},
-          // {required: true, trigger: 'change', validator: entryTimeRequire}
-        ],
-        leaveTime:[
-          {required: true, message: '请选择离职日期', trigger: 'blur'},
-          // {required: true, trigger: 'change', validator: leaveTimeRequire}
-        ]
       },
       startPickerOptions: {
         disabledDate: (time) => {
@@ -170,16 +163,68 @@ export default {
       }
       return typeLabel[type] || '';
     },
-    editHandle(){},
-    delHandle(){},
+    getInfo(type){
+      if(type==='init'){
+        this.page = 0
+      }
+      const that = this;
+      this.dataListLoading = true;
+      getSupplierList({
+        page:this.page,
+        size:this.pageSize,
+        name:this.name
+      }).then(res=>{
+        if(res && res.code === 200){
+          that.staffData = res.data.rows;
+          that.totalList = res.data.total;
+        }else{
+          that.$message.error(res.msg)
+        }
+        that.dataListLoading = false;
+      },()=>{
+        that.dataListLoading = false;
+      })
+    },
+    // 删除店员
+    delHandle(id,name,index){
+      const that = this;
+      this.$confirm(`确定对「 ${name} 」进行「 删除 」操作?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        delSupplier(id).then(res=>{
+          if(res && res.code === 200){
+            that.$message.success(`删除店员 ${name} 成功`);
+            that.staffData.splice(index, 1);
+          }else{
+            that.$message.error(res.msg)
+          }
+        })
+      }).catch(()=>{});
+    },
     currentChangeHandle(val){
       this.page = val;
+      this.getInfo();
     },
-    addStaff(){
+    addStaffInfo(id){
       this.dialogVisible = true;
+      const that = this;
+      // 如果有店员的情况
+      if(id){
+        getStaff(id).then(res=>{
+          if(res&& res.code === 200){
+            that.staffForm = res.data;
+          }else{
+             this.$message.error(res&&res.msg)
+          }
+        }).catch((err)=>{
+          this.$message.error(err)
+        });
+      }
     },
      // 弹窗
-    beforeClose() {
+    beforeClose(id) {
       this.cancel();
     },
     cancel() {
@@ -194,7 +239,7 @@ export default {
           this.$message.error('请填写完整再保存');
           return false;
         }
-         const submitFun = that.staffForm.id ?editStaff:addStaff;
+        const submitFun = that.staffForm.id ?editStaff:addStaff;
         submitFun(that.staffForm.id,that.staffForm).then(res=>{
           console.log('res',res);
           if(res&&res.code ===200){
@@ -210,6 +255,11 @@ export default {
           this.submitLoading = false;
         })
       })
+    },
+        // 第几条
+    indexMethod(index) {
+      const page = this.page > 0 ? this.page - 1 : this.page;
+      return this.listTotal - page * this.pageSize - index;
     },
   }
 }

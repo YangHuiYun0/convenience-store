@@ -9,8 +9,10 @@
       <el-table :data="inventoryData" v-loading="dataListLoading" ref="eltable" v-if="isShowList">
         <el-table-column v-for="(item,index) in inventoryTable"
             :label="getDataLabel(item)"
+            :type="index === 0 ? 'index' : ''"
             :width="(index === 0 && 50)"
             :key="item" :prop="item"
+            :index="indexMethod"
             align="center">
         </el-table-column>
         <!-- 'totalAmount', -->
@@ -97,6 +99,10 @@ export default {
     },
     currentChangeHandle(val){
       this.page = val;
+    },
+    indexMethod(index) {
+      const page = this.page > 0 ? this.page - 1 : this.page;
+      return this.totalList - page * this.pageSize - index;
     },
   },
 }
