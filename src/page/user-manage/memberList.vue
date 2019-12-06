@@ -135,6 +135,7 @@
 
 <script>
 import HeadTop from "../../components/headTop";
+import { addStaff,delStaff,getStaff,editStaff } from "../../api/user";
 export default {
   data(){
     const mobileRequire = (rule, value, callback) => {
@@ -160,7 +161,7 @@ export default {
         {index:'1',memberId:'1',memberName:'杨先生',sex:'男',level:'普通会员',integral:'32',joinTime:'2019.11.25',mobile:'15892089899',status:1},
         {index:'2',memberId:'2',memberName:'陈女士',sex:'女',level:'黄金会员',integral:'333',joinTime:'2019.11.05',mobile:'15892089899',status:0},
       ],
-      memberTable:['index','memberId','memberName','sex','level','integral','joinTime','mobile','status'],
+      memberTable:['index','memberName','sex','level','integral','joinTime','mobile','status'],
       memberForm:{
         memberId:'',
         memberName:'',

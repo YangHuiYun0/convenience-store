@@ -31,9 +31,10 @@ const service = axios.create({
 // respone 拦截器
 service.interceptors.response.use(response => {
   // code 500 -> 登录失败
-  if (response.data && response.data.code === 500 && response.data.msg === 'unLogin') {
+  if (response.data && response.data.code === 401) {
     router.push({ path: '/' });
     Message.error('您的访问权限已过期，请重新登录');
+    return false
   }
   return response.data;
 }, error => {
