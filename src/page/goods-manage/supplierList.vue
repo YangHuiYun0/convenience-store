@@ -171,21 +171,20 @@ export default {
     },
     delHandle(id,name,index){
       const that = this;
-       this.$confirm(`确定对「 ${name} 」进行「 删除 」操作?`, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          delSupplier(id).then(res=>{
-            if(res && res.code === 200){
-              that.$message.success(`删除供应商 ${name} 成功`);
-              that.supplierData.splice(index, 1);
-            }else{
-              that.$message.error(res.msg)
-            }
-          })
-        }).catch(()=>{});
-
+      this.$confirm(`确定对「 ${name} 」进行「 删除 」操作?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        delSupplier(id).then(res=>{
+          if(res && res.code === 200){
+            that.$message.success(`删除供应商 ${name} 成功`);
+            that.supplierData.splice(index, 1);
+          }else{
+            that.$message.error(res.msg)
+          }
+        })
+      }).catch(()=>{});
     },
     // 弹窗
     beforeClose() {
