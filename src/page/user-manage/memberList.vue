@@ -18,7 +18,6 @@
                 :label="getDataLabel(item)"
                 :width="(index === 0 && 50)"
                 :key="item" :prop="item"
-                :index="indexMethod"
                 align="center">
             </el-table-column>
             <el-table-column label="用户状态" prop="status" width="80" align="center">
@@ -90,7 +89,7 @@
       </span>
     </el-dialog>
 
-    <MemberLevel v-if="levelVisible"></MemberLevel>
+    <MemberLevel v-if="levelVisible" @updateStatus='updateStatus'></MemberLevel>
   </div>
 </template>
 
@@ -228,6 +227,10 @@ export default {
     },
     levelManage(){
       this.levelVisible = true;
+    },
+    // 由子组件传值过来  关闭弹窗的标志
+    updateStatus(status){
+      this.levelVisible = status;
     },
     beforeClose() {
       this.cancel();

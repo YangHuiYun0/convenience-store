@@ -43,12 +43,16 @@ export default {
           userName:this.loginForm.username,
           password:this.loginForm.password
         }).then(res=>{
-          console.log('res',res);
-          this.$message({
-            type: 'success',
-            message: '登录成功'
-          });
-          this.$router.push('/home')
+          if(res && res.code=== 200){
+            this.$message({
+              type: 'success',
+              message: '登录成功'
+            });
+            this.$router.push('/home')
+          }else{
+            this.$message.error(res.msg)
+          }
+
         }).catch()
        
       });

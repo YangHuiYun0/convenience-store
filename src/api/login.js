@@ -1,5 +1,5 @@
 import request from "../util/request";
-const BASE_API = 'http://192.168.0.106:9090'
+const BASE_API = 'http://192.168.0.107:9090'
 
 export function getLogin(data){
     return request({

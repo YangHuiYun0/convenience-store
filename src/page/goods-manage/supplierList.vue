@@ -6,6 +6,10 @@
         <el-button  type="success" class="el-icon-plus modify-btn right-btn" size="small"
                   @click="addSupplierInfo()">增加供应商</el-button>
       </div>
+       <div style="text-align: right; padding-right:80px">
+          <el-input v-model="supplierName" style="width:200px" placeholder="请输入供应商名字"></el-input>
+          <el-button type="info" @click="getInfo" >查询</el-button>
+      </div>
         <el-table :data="supplierData" v-loading="dataListLoading" ref="eltable" >
           <el-table-column v-for="(item,index) in supplierTable"
               :type="index === 0?'index':''"
@@ -80,11 +84,12 @@ export default {
     return{
       page:0,
       totalList:0,
-      pageSize:2,
+      pageSize:5,
       dataListLoading:false,
       isShowList:true,
       submitLoading:false,
       dialogVisible:false,
+      supplierName:'',
       supplierTable:['index','supplierNum','supplierName','supplierLinkname','supplierLinktel'],
       supplierData:[],
       addSupplierForm:{
@@ -136,7 +141,8 @@ export default {
       this.dataListLoading = true;
       getSupplierList({
         page:this.page,
-        size:this.pageSize
+        size:this.pageSize,
+        supplierName:this.supplierName,
       }).then(res=>{
         if(res && res.code === 200){
           that.supplierData = res.data.rows;

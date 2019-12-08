@@ -16,13 +16,12 @@
             :label="getDataLabel(item)"
             :width="(index === 0 && 50)"
             :key="item" :prop="item"
-            :index="indexMethod"
             align="center">
         </el-table-column>
         <el-table-column label="操作" width="150" align="center">
           <template slot-scope="scope"> 
             <!--编辑 删除 -->
-            <i class="el-icon-edit"  @click="addStaffInfo(scope.rows.id);"></i> 
+            <i class="el-icon-edit"  @click="addStaffInfo(scope.row.id);"></i> 
             <i class="el-icon-delete" @click="delHandle(scope.row.id,scope.row.name,scope.$index);"></i>
           </template>
         </el-table-column>
@@ -40,15 +39,16 @@
             :before-close="beforeClose"
             :visible.sync="dialogVisible"
             :modal-append-to-body='false'
-            width='500px'>
+            width='500px'
+            v-if="dialogVisible">
       <el-form :model="staffForm" ref="staffForm" :rules="rules">
         <el-form-item label="用户名" prop="userName">
           <el-input v-model="staffForm.userName"  placeholder="请输入店员登录用户名"  show-word-limit maxlength=12
-                    clearable style="width:300px"></el-input>
+                    clearable style="width:300px" :disabled="staffForm.id!==null"></el-input>
         </el-form-item>
-        <el-form-item label="登录密码" prop="password">
+        <el-form-item label="登录密码" prop="password" v-if="!staffForm.id">
           <el-input v-model="staffForm.password"  placeholder="请输入店员登录密码"  show-word-limit minlength=6 maxlength=8
-                    clearable style="width:300px"></el-input>
+                    clearable style="width:300px" ></el-input>
         </el-form-item>
         <el-form-item label="性别">
           <el-radio v-model="staffForm.sex" label='男'>男</el-radio>
@@ -73,7 +73,7 @@
 
 <script>
 import HeadTop from "../../components/headTop";
-import { editStaff,addStaff,delStaff,getStaff } from '../../api/user';
+import { editStaff,addStaff,delStaff,getStaff,getStaffList } from '../../api/user';
 export default {
   data(){
     const phoneRequire = (rule, value, callback) => {
@@ -91,26 +91,34 @@ export default {
         callback();
       }
     }
+
+    const userNameRequire = (rule,value,callback)=>{
+      if(!String(this.staffForm.userName).match(/^[0-9a-zA-Z]+$/)){
+        callback(new Error ('用户名只能由英文和数字组成'))
+      }else{
+        callback();
+      }
+    }
     return{
       page:0,
-      totalList:3,
-      pageSize:10,
+      totalList:0,
+      pageSize:5,
       dataListLoading:false,
       isShowList:true,
       submitLoading:false,
       workNumber:'',
       name:'',
       staffData:[],
-      staffTable:['index','name','userName','password','sex','phone','entryTime','leaveTime'],
+      staffTable:['index','name','userName','password','sex','phone'],
       // 增加弹窗
       dialogVisible:false,
       staffForm:{
-        id:'',
+        id:null,
         name:'',
         userName:'',
         phone:'',
-        password:'',
-        sex:'',
+        password:'123456',
+        sex:'男',
         userType:1,
       },
       rules:{
@@ -121,7 +129,8 @@ export default {
           { required: true, message: '请输入店员名字', trigger: 'blur'}
         ],
         userName:[
-          { required: true, message: '请输入店员登录用户名', trigger: 'blur'}
+          { required: true, message: '请输入店员登录用户名', trigger: 'blur'},
+          { required: true, trigger: 'change', validator: userNameRequire }
         ],
         password:[
           { required: true, message: '请输入店员登录密码', trigger: 'blur'},
@@ -149,6 +158,9 @@ export default {
   components: {
     HeadTop,
   },
+  mounted(){
+    this.getInfo('init');
+  },
   methods:{
     getDataLabel(type){
       const typeLabel = {
@@ -169,7 +181,7 @@ export default {
       }
       const that = this;
       this.dataListLoading = true;
-      getSupplierList({
+      getStaffList({
         page:this.page,
         size:this.pageSize,
         name:this.name
@@ -193,10 +205,11 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        delSupplier(id).then(res=>{
+        delStaff(id).then(res=>{
           if(res && res.code === 200){
             that.$message.success(`删除店员 ${name} 成功`);
             that.staffData.splice(index, 1);
+            that.totalList--;
           }else{
             that.$message.error(res.msg)
           }
@@ -221,14 +234,23 @@ export default {
         }).catch((err)=>{
           this.$message.error(err)
         });
+      }else{
+        this.closeForm();
       }
     },
      // 弹窗
+    closeForm(){
+      this.staffForm.name = '';
+      this.staffForm.userName = '';
+      this.staffForm.phone = '';
+      this.staffForm.password = '';
+    },
     beforeClose(id) {
       this.cancel();
     },
     cancel() {
       this.$refs.staffForm.resetFields();
+      this.closeForm();
       this.submitLoading = false;
       this.dialogVisible = false;
     },
@@ -247,7 +269,7 @@ export default {
               type: 'success',
               message: `${that.staffForm.id?'修改':'增加'}成功`
             });
-            // that.getInfo();
+            that.getInfo();
           }else{
             this.$message.error(res.msg)
           }
@@ -259,7 +281,7 @@ export default {
         // 第几条
     indexMethod(index) {
       const page = this.page > 0 ? this.page - 1 : this.page;
-      return this.listTotal - page * this.pageSize - index;
+      return this.totalList - page * this.pageSize - index;
     },
   }
 }

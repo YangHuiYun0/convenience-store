@@ -6,41 +6,29 @@
             width='500px'>
       <el-form :model="levelForm" ref="levelForm" :rules="rules" >
          <el-form-item label="普通会员" prop="ordinary">
-          <!-- <el-input v-model="levelForm.ordinary" placeholder="请输入积分范围" 
-                    clearable style="width:300px"></el-input> -->
           <el-input-number v-model="levelForm.ordinary"  placeholder="请输入积分范围" 
-          :step="1" :min="0" :max='levelForm.silver' style="width:300px"></el-input-number>
+          :step="1" :min="0" :max=' Number(levelForm.silver)-1' style="width:300px"></el-input-number>
         </el-form-item>
 
         <el-form-item label="白银会员" prop="silver">
-          <!-- <el-input v-model="levelForm.silver" placeholder="请输入积分范围" 
-                    clearable style="width:300px"></el-input> -->
           <el-input-number v-model="levelForm.silver"  placeholder="请输入积分范围" 
-          :step="1" :min="levelForm.ordinary" :max='levelForm.gold' style="width:300px"></el-input-number>
+          :step="1" :min=" Number(levelForm.ordinary)" :max='Number(levelForm.gold)-1' style="width:300px"></el-input-number>
         </el-form-item>
         <el-form-item label="黄金会员" prop="gold">
-          <!-- <el-input v-model="levelForm.gold" placeholder="请输入积分范围" 
-                    clearable style="width:300px"></el-input> -->
           <el-input-number v-model="levelForm.gold"  placeholder="请输入积分范围" 
-          :step="1" :min="levelForm.silver" :max='levelForm.platinum' style="width:300px"></el-input-number>
+          :step="1" :min=" Number(levelForm.silver)" :max='Number(levelForm.platinum)-1' style="width:300px"></el-input-number>
         </el-form-item>
         <el-form-item label="白金会员" prop="platinum">
-          <!-- <el-input v-model="levelForm.platinum" placeholder="请输入积分范围"
-                    clearable style="width:300px"></el-input> -->
           <el-input-number v-model="levelForm.platinum"  placeholder="请输入积分范围" 
-          :step="1" :min="levelForm.gold" :max='levelForm.jewel' style="width:300px"></el-input-number>
+          :step="1" :min=" Number(levelForm.gold)" :max='Number(levelForm.jewel)-1' style="width:300px"></el-input-number>
         </el-form-item>
         <el-form-item label="钻石会员" prop="jewel">
-          <!-- <el-input v-model="levelForm.jewel" placeholder="请输入积分范围" 
-                    clearable style="width:300px"></el-input> -->
           <el-input-number v-model="levelForm.jewel"  placeholder="请输入积分范围" 
-          :step="1" :min="levelForm.platinum" :max='levelForm.super' style="width:300px"></el-input-number>
+          :step="1" :min=" Number(levelForm.platinum) " :max='Number(levelForm.super)-1' style="width:300px"></el-input-number>
         </el-form-item>
         <el-form-item label="超级会员" prop="super">
-          <!-- <el-input v-model="levelForm.super" placeholder="请输入积分范围"
-                    clearable style="width:300px"></el-input> -->
           <el-input-number v-model="levelForm.super"  placeholder="请输入积分范围" 
-          :step="1" :min="levelForm.jewel" style="width:300px"></el-input-number>
+          :step="1" :min="Number(levelForm.jewel)" style="width:300px"></el-input-number>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -51,6 +39,7 @@
 </template>
 
 <script>
+import { getLevelInfo,editLevel } from "../../api/user";
 export default {
   data(){
     return{
@@ -64,7 +53,26 @@ export default {
         jewel:'400',
         super:'800',
       },
+      rules:{
+        ordinary:[ {required: true, message: '请输入会员积分', trigger: 'blur'}],
+        silver:[ {required: true, message: '请输入会员积分', trigger: 'blur'}],
+        gold:[ {required: true, message: '请输入会员积分', trigger: 'blur'}],
+        platinum:[ {required: true, message: '请输入会员积分', trigger: 'blur'}],
+        jewel:[ {required: true, message: '请输入会员积分', trigger: 'blur'}],
+        super:[ {required: true, message: '请输入会员积分', trigger: 'blur'}],
+      }
     }
+  },
+  mounted(){
+    const that = this;
+    getLevelInfo().then((res)=>{
+     if(res && res.code === 200){
+       that.levelForm = res.data;
+     }else{
+       this.$message.error(res.msg)
+     }
+      
+    })
   },
   methods:{
     beforeClose() {
@@ -81,15 +89,17 @@ export default {
           this.$message.error('请填写完整再保存');
           return false;
         }
-        addLevel(that.levelForm).then(res=>{
-          console.log('res',res);
+        this.submitLoading = true;
+        editLevel(that.levelForm).then(res=>{
           if(res&&res.code ===200){
-            this.$message.success('修改成功')
+            this.$message.success('修改成功');
           }else{
             this.$message.error(res.msg)
           }
           this.dialogVisible = false;
           this.submitLoading = false;
+          var status = false
+          that.$emit('updateStatus',status);
         })
       })
     },
