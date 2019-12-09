@@ -1,5 +1,4 @@
 import request from "../util/request";
-const BASE_API = 'http://192.168.0.107:9090'
 
 // ===========店员管理api==========
 export function addStaff(id,data) {
@@ -89,7 +88,7 @@ export function getMember(id) {
 //查列表
 export function getMemberList(params) {
     return request({
-        url:'/user/querySalesList',
+        url:'/user/queryCustomerList',
         method:'get',
         params
     })

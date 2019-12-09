@@ -47,5 +47,56 @@ export function addNodeType(data) {
         data
     })
 }
+export function getNodeType(data) {
+    return request({
+        url:'/category/addCategory',
+        method:'post',
+        data
+    })
+}
+export function addGoods(id,data) {
+    return request({
+        url:'/supplier/addSupplier',
+        method:'post',
+        data
+    })
+}
 
+export function editGoods(id,data) {
+    return request({
+        url:`/supplier/updateSupplier/${id}`,
+        method:'put',
+        data
+    })
+}
+
+
+export function getGoods(id) {
+    return request({
+        url:'/supplier/getSupplier/'+id,
+        method:'get',
+    })
+}
+
+export function delGoods(id) {
+    return request({
+        url:'/supplier/deleteSupplier/'+id,
+        method:'delete',
+    })
+}
+export function getGoodsList(params) {
+    return request({
+        url:`/supplier/querySupplierList`,
+        method:'get',
+        params
+    })
+}
+
+// 查询树列表
+export function getTreeList() {
+    return request({
+        url:`/category/queryCategoryList`,
+        method:'get',
+    })
+}
 
