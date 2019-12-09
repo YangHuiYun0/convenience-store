@@ -96,7 +96,7 @@
 <script>
 import HeadTop from "../../components/headTop";
 import MemberLevel from "./memberLevel";
-import { addStaff,delStaff,getStaff,editStaff } from "../../api/user";
+import { addMember,delMember,getMember,editMember,getMemberList } from "../../api/user";
 export default {
   data(){
     const mobileRequire = (rule, value, callback) => {
@@ -170,7 +170,7 @@ export default {
       }
       const that = this;
       this.dataListLoading = true;
-      getSupplierList({
+      getMemberList({
         page:this.page,
         size:this.pageSize,
         memberName:this.memberName,
@@ -210,7 +210,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        delSupplier(id).then(res=>{
+        delMember(id).then(res=>{
           if(res && res.code === 200){
             that.$message.success(`删除店员 ${name} 成功`);
             that.memberData.splice(index, 1);

@@ -12,6 +12,7 @@
         <el-pagination
           background
           layout="total, prev, pager, next"
+          :type="index === 0 ?'index':''"
           :current-page=page
           :total=totalList
           :page-size=pageSize
@@ -23,6 +24,7 @@
 
 <script>
 import HeadTop from "../../components/headTop";
+import { getTotalSalesList } from "@/api/sales";
 export default {
   data(){
     return{
@@ -37,6 +39,9 @@ export default {
   },
   components: {
     HeadTop,
+  },
+  mounted(){
+    this.getDataList('init')
   },
   methods:{
     getDataLabel(type){
@@ -53,6 +58,29 @@ export default {
     },
     currentChangeHandle(val){
       this.page = val;
+      this.getDataList();
+    },
+    getDataList(type){
+      if(type === 'init'){
+        this.page = 0;
+      }
+      this.dataListLoading = true;
+      const that = this;
+      getTotalSalesList({
+        page:this.page,
+        pageSize:this.pageSize
+      }).then(res =>{
+        if(res && res.code === 200){
+          that.totalData = res.data.rows;
+          that.totalList = res.data.total;
+        }else{
+          that.$message.error(res.msg)
+        }
+        that.dataListLoading = false;
+      }).catch(err=>{
+        that.$message.error(err)
+        that.dataListLoading = false;
+      });
     },
   }
 }

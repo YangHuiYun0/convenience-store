@@ -87,6 +87,7 @@
 
 <script>
 import HeadTop from "../../components/headTop";
+import { getGoods,addGoods,editGoods } from "@/api/goods";
 export default {
   data(){
     const priceRequire = (rule, value, callback) => {
@@ -111,10 +112,11 @@ export default {
       }
     }
     return{
+      submitLoading:false,
       dataForm:{
         name:'',
         status:1,
-        goodsId:'',
+        goodsId:this.$route.query['id']||'',
         goodsType:'',//商品类别
         goodsImgUrl:'',
         goodsUnit:'',
@@ -160,7 +162,56 @@ export default {
   components: {
     HeadTop,
   },
+  mounted(){
+    this.getGoodsInfo();
+  },
   methods: {
+      getGoodsInfo(){
+        const that = this;
+        if(that.dataForm.goodsId){
+          getGoods(that.dataForm.goodsId).then(res=>{
+            if(res && res.code === 200){
+              that.dataForm = res.data;
+            }else{
+              that.$message.error(res.msg)
+            }
+          }).catch(err=>{
+            that.$message.error(err)
+          })
+        }
+      },
+
+      //保存修改
+      submitForm(){
+        const that = this;
+        that.$refs.dataForm.validate(valid => {
+          if (!valid) {
+            this.$message.error('请填写完整再保存');
+            return false;
+          }
+          that.submitLoading = true;
+          const submitFun = that.dataForm.goodsId ? editGoods : addGoods;
+          submitFun(that.dataForm.goodsId,that.dataForm).then(res=>{
+            console.log('res:',res);
+            if(res && res.code === 200){
+              
+            }else{
+              that.$message.error(res.msg)
+            }
+            that.submitLoading = false;
+          }).catch(err=>{
+            that.$message.error(err)
+            that.submitLoading = false;
+          })
+        });
+      },
+
+      cancelForm(){
+        this.$router.push({
+          path: '/goods-manage-goods',
+        });
+      },
+
       handleAvatarSuccess(res, file) {
         this.dataForm.goodsImgUrl = URL.createObjectURL(file.raw);
       },
