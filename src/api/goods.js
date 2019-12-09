@@ -1,9 +1,8 @@
 import request from "../util/request";
-const BASE_API = 'http://192.168.0.106:9090'
 
 export function getSupplierList(params) {
     return request({
-        url:BASE_API +`/supplier/querySupplierList`,
+        url:`/supplier/querySupplierList`,
         method:'get',
         params
     })
@@ -11,7 +10,7 @@ export function getSupplierList(params) {
 
 export function addSupplier(id,data) {
     return request({
-        url:BASE_API +'/supplier/addSupplier',
+        url:'/supplier/addSupplier',
         method:'post',
         data
     })
@@ -19,7 +18,7 @@ export function addSupplier(id,data) {
 
 export function editSupplier(id,data) {
     return request({
-        url:BASE_API +`/supplier/updateSupplier/${id}`,
+        url:`/supplier/updateSupplier/${id}`,
         method:'put',
         data
     })
@@ -28,15 +27,24 @@ export function editSupplier(id,data) {
 
 export function getSupplier(id) {
     return request({
-        url:BASE_API +'/supplier/getSupplier/'+id,
+        url:'/supplier/getSupplier/'+id,
         method:'get',
     })
 }
 
 export function delSupplier(id) {
     return request({
-        url:BASE_API +'/supplier/deleteSupplier/'+id,
+        url:'/supplier/deleteSupplier/'+id,
         method:'delete',
+    })
+}
+
+// 增加商品类别
+export function addNodeType(data) {
+    return request({
+        url:'/category/addCategory',
+        method:'post',
+        data
     })
 }
 

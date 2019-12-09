@@ -118,16 +118,49 @@
         </el-col>
       </el-row>
      </div>
+     <el-dialog
+      title="新增节点"
+      :visible.sync="dialogVisible"
+      :modal-append-to-body='false'
+      width="30%"
+      :before-close="handleClose">
+      <el-form :model="nodeForm" ref="nodeForm" :rules="rules" >
+        <el-form-item label="名称" prop="categoryName" >
+          <el-input v-model="nodeForm.categoryName" placeholder="请输入节点名称" show-word-limit maxlength=6
+                    clearable style="width:300px"></el-input>
+        </el-form-item>
+        <el-form-item label="简介" prop="categoryDesc" >
+          <el-input type="textarea" :rows="3" v-model="nodeForm.categoryDesc" placeholder="请输入节点简介"
+           show-word-limit maxlength=200 clearable style="width:300px"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addNodeCateGory" :loading="submitLoading">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 
 </template>
 
 <script>
 import HeadTop from "../../components/headTop";
+import { 
+  addNodeType,
+ } from "../../api/goods";
 export default{
 	data(){
 		return {
-			isLoading: false,// 是否加载
+      submitLoading:false,
+      isLoading: false,// 是否加载
+      nodeForm:{
+        pCode:null,
+        categoryName:'',
+        categoryDesc:'',
+        code:null,
+      },
+      parentNodeId:'',
+      dialogVisible: false,
 			NODE_KEY: 'id',// id对应字段
 			MAX_LEVEL: 2,// 设定最大层级
 			NODE_ID_START: 0,// 新增节点id，逐次递减
@@ -200,7 +233,15 @@ export default{
       supplierTypeList:[{id:'',label:'请选择'},{id:'1',label:'平板农场'},{id:'2',label:'沃尔玛场'}],
       goodsTable:['index','goodsId','goodsType','name','unit','supplier','purchasePrice','integral','sellPrice','inventory'],
       goodsData:[{},{},{},{},{},{},{},{},{},{},{},{},],
-		}
+      rules:{
+        categoryName:[
+          { required: true, message: '请输入节点名称', trigger: 'blur' },
+        ],
+        categoryDesc:[
+          { required: true, message: '请输入节点简介', trigger: 'blur' },
+        ],
+      }
+    }
 	},
 	created(){
 		// 初始值
@@ -276,32 +317,67 @@ export default{
 				}
 			})
 		},
-		handleAdd(_node, _data){// 新增节点
-			console.log(_node, _data)
-			// 判断层级
-			if(_node.level >= this.MAX_LEVEL){
-				this.$message.warning("当前已达到"+ this.MAX_LEVEL + "级，无法新增！")
-				return false;
-			}
-			let obj = JSON.parse(JSON.stringify(this.initParam));// copy参数
-			obj.pid = _data[this.NODE_KEY];// 父id
-			obj[this.NODE_KEY] = --this.startId;// 节点id：逐次递减id
-			// 判断字段是否存在
-			if(!_data.children){
-				this.$set(_data, 'children', [])
-			}
-			// 新增数据
-			_data.children.push(obj)
+    handleAdd(_node, _data){// 新增节点
+      this.dialogVisible = true;
+      console.log("父节点的ID",_data[this.NODE_KEY]);
+      
+      this.nodeForm.pCode = _data[this.NODE_KEY];
+			// console.log(_node, _data)
+			// // 判断层级
+			// if(_node.level >= this.MAX_LEVEL){
+			// 	this.$message.warning("当前已达到"+ this.MAX_LEVEL + "级，无法新增！")
+			// 	return false;
+			// }
+			// let obj = JSON.parse(JSON.stringify(this.initParam));// copy参数
+			// obj.pid = _data[this.NODE_KEY];// 父id
+			// obj[this.NODE_KEY] = --this.startId;// 节点id：逐次递减id
+			// // 判断字段是否存在
+			// if(!_data.children){
+			// 	this.$set(_data, 'children', [])
+			// }
+			// // 新增数据
+			// _data.children.push(obj)
 
-			// 展开节点
-			if(!_node.expanded){
-				_node.expanded = true
-			}
+			// // 展开节点
+			// if(!_node.expanded){
+			// 	_node.expanded = true
+			// }
 		},
-		handleAddTop(){// 添加顶部节点
-			let obj = JSON.parse(JSON.stringify(this.initParam));// copy参数
-			obj[this.NODE_KEY] = --this.startId;// 节点id：逐次递减id
-			this.setTree.push(obj)
+    handleAddTop(){// 添加顶部节点
+      this.dialogVisible = true;
+			// let obj = JSON.parse(JSON.stringify(this.initParam));// copy参数
+			// obj[this.NODE_KEY] = --this.startId;// 节点id：逐次递减id
+			// this.setTree.push(obj)
+    },
+    // 弹窗增加节点
+    addNodeCateGory(){
+      const that = this;
+      that.$refs.nodeForm.validate(valid => {
+        if (!valid) {
+          this.$message.error('请填写完整再保存');
+          return false;
+        }
+        that.submitLoading = true;
+        addNodeType(this.nodeForm).then(res=>{
+          console.log('新增的节点',res);
+          if(res && res.code === 200){
+            if(that.nodeForm.pCode){
+              that.nodeForm.code = res.data;
+            }else{
+              that.nodeForm.pCode = res.data;
+            }
+          }
+          that.submitLoading = false;
+          that.dialogVisible = false;
+        }).catch(err=>{
+          that.submitLoading = false;
+          that.dialogVisible = false;
+        })
+      });
+    },
+    // 关闭节点弹窗
+    handleClose(done) {
+      this.dialogVisible = false
     },
     addGoods(){
       this.$router.push({
