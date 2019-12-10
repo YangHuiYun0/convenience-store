@@ -18,16 +18,6 @@
               :node-key="NODE_KEY"
               :accordion='true'>
                 <div class="comp-tr-node" slot-scope="{ node, data }">
-                  <!-- 编辑状态 -->
-                  <!-- <template v-if="node.isEdit">
-                    <el-input v-model="data.categoryName" 
-                      autofocus
-                      size="mini"
-                      :ref="'slotTreeInput'+data[NODE_KEY]"
-                      @blur.stop="handleInput(node, data)"
-                      @keyup.enter.native="handleInput(node, data)"></el-input>
-                  </template> -->
-                  <!-- 非编辑状态 -->
                   <template>
                     <!-- 名称： 新增节点增加class（is-new） -->
                     <span :class="[data[NODE_KEY] < NODE_ID_START ? 'is-new' : '', 'comp-tr-node--name']">
@@ -35,9 +25,9 @@
                     </span>
                     <span class="comp-tr-node--btns">
                       <!-- 新增 -->
-                      <el-button icon="el-icon-plus"   size="mini"    circle   type="primary"  @click="handleAdd(node, data)"></el-button>
-                      <el-button icon="el-icon-edit"   size="mini"  circle   type="info"  @click="handleEdit(node, data)"></el-button>
-                      <el-button icon="el-icon-delete"   size="mini"  circle   type="danger"  @click="handleDelete(node, data)"></el-button>
+                      <el-button icon="el-icon-plus" size="mini" circle type="primary" @click="handleAdd(node, data)" v-if="!data.categoryPcode"></el-button>
+                      <el-button icon="el-icon-edit" size="mini" circle type="info"  @click="handleEdit(node, data)"></el-button>
+                      <el-button icon="el-icon-delete" size="mini" circle type="danger" @click="handleDelete(node, data)"></el-button>
                     </span>
                   </template>
                 </div>
@@ -46,8 +36,8 @@
         </el-col>
         <el-col :xs="14" :sm="14" :md="16" :lg="18" :xl="20" style="padding:10px">
           <div style="margin-bottom:20px;text-align: right">
-            <el-button type="danger" class="el-icon-delete" >删除选中</el-button>
-            <el-button type="success" class="el-icon-plus" @click="addGoods" >增加商品</el-button>
+            <!-- <el-button type="danger" class="el-icon-delete"  @click="toggleSelection()" >删除选中</el-button> -->
+            <el-button type="success" class="el-icon-plus" @click="addGoods()" >增加商品</el-button>
           </div>
           <el-form label-width="100px">
             <el-row>
@@ -88,10 +78,10 @@
           <el-table :data="goodsData" v-loading="dataListLoading"
            :row-key="row => row.index" ref="eltable"
            @selection-change="handleSelectionChange">
-            <el-table-column
+            <!-- <el-table-column
               type="selection"
               width="55">
-            </el-table-column>
+            </el-table-column> -->
             <el-table-column v-for="(item,index) in goodsTable"
                 :label="getDataLabel(item)"
                 :width="(index === 0 && 50)"
@@ -151,6 +141,8 @@ import {
   delGoods,
   getGoodsList,
   getTreeList,
+  delTreeNode,
+  editNodeType
  } from "../../api/goods";
 export default{
 	data(){
@@ -158,16 +150,17 @@ export default{
       submitLoading:false,
       isLoading: false,// 是否加载
       nodeForm:{
-        caregoryPcode:null,
+        categoryPcode:null,
         categoryName:'',
         categoryDesc:'',
-        caregoryCode:null,
+        categoryCode:null,
       },
-      nowAddPNodeData:'',//新增节点的父节点
+      nowAddPNodeData:'',//新增节点的父节点数据
+      nowAddPNode:'',//新增节点的父节点
       nowEditNodeData:'',//所编辑节点的数据
       parentNodeId:'',
       dialogVisible: false,
-			NODE_KEY: 'categoryPcode',// id对应字段
+			NODE_KEY: 'categoryCode',// id对应字段
 			MAX_LEVEL: 2,// 设定最大层级
 			NODE_ID_START: 0,// 新增节点id，逐次递减
 			startId: null,
@@ -180,56 +173,10 @@ export default{
 				pid: 0,
 				children: []
       },
-      setTree:[
-        {  
-          id: 1,  
-          name: "饮料",  
-          ProSort: 1,  
-          remark: "大类",
-          pid: '',
-          isEdit: false,
-          children: [
-            {
-              id: 35,
-              name: "果汁",
-              pid: 1,
-              remark: '',
-              isEdit: false,
-            },{
-              id: 36,
-              name: "碳酸饮料",
-              pid: 1,
-              remark: '',
-              isEdit: false,
-            },
-          ]
-        },{  
-          id: 2,  
-          name: "学习用品",  
-          ProSort: 2,  
-          remark: "大类",
-          pid: '',
-          isEdit: false,
-          children: [
-            {
-              id: 37,
-              name: "笔",
-              pid: 1,
-              remark: '',
-              isEdit: false,
-            },{
-              id: 38,
-              name: "本子",
-              pid: 1,
-              remark: '',
-              isEdit: false,
-            },
-          ]
-        },
-      ],
+      setTree:[],
       // =========表格===========
       page:0,
-      totalList:3,
+      totalList:0,
       pageSize:12,
       dataListLoading:false,
       goodsType:'',//商品类别
@@ -238,7 +185,7 @@ export default{
       goodsTypeList:[{id:'',label:'请选择'},{id:'1',label:'饮料汽水'},{id:'2',label:'膨化零食'}],
       supplierTypeList:[{id:'',label:'请选择'},{id:'1',label:'平板农场'},{id:'2',label:'沃尔玛场'}],
       goodsTable:['index','goodsId','goodsType','name','unit','supplier','purchasePrice','integral','sellPrice','inventory'],
-      goodsData:[{},{},{},{},{},{},{},{},{},{},{},{},],
+      goodsData:[],
       rules:{
         categoryName:[
           { required: true, message: '请输入节点名称', trigger: 'blur' },
@@ -257,7 +204,7 @@ export default{
     HeadTop,
   },
   mounted(){
-    // this.getListInfo();
+    this.getListInfo();
     this.getTreeInfo();
   },
 	methods: {
@@ -283,15 +230,8 @@ export default{
 				this.$message.error("此节点有子级，不可删除！")
 				return false;
 			}else{
-				// 删除操作
-				let DeletOprate = () => {
-					this.$nextTick(() => {
-						if(this.$refs.SlotTree){
-							this.$refs.SlotTree.remove(_data)
-							this.$message.success("删除成功！")
-						}
-					})
-				}
+        // 删除操作
+        const that = this;
 				// 二次确认
 				let ConfirmFun = () => {
 					this.$confirm("是否删除此节点？","提示",{
@@ -299,7 +239,19 @@ export default{
 						cancelButtonText: "取消",
 						type: "warning"
 					}).then(() => {
-						DeletOprate()
+						delTreeNode(_data.id).then(res=>{
+              console.log('删除',res);
+              if(res && res.code === 200){
+                that.$nextTick(() => {
+                  if(that.$refs.SlotTree){
+                    that.$refs.SlotTree.remove(_data)
+                    that.$message.success("删除成功！")
+                  }
+                })
+              }else{
+                that.$message.error("删除失败！")
+              }
+            }).catch()
 					}).catch(() => {})
 				}
 
@@ -318,25 +270,17 @@ export default{
       console.log(_node, _data)
       this.dialogVisible = true;
       this.nowEditNodeData = _data;
+      this.nowAddPNode = _node;
       const that = this;
-      getNodeType(_data[this.NODE_KEY]).then(res=>{
+      getNodeType(_data.id).then(res=>{
         console.log('编辑的节点',res);
         that.nodeForm = res.data;
       }).catch(err=>{
         that.$message.error(res.msg)
       })
-			// // 设置编辑状态
-			// if(!_node.isEdit){
-			// 	this.$set(_node, 'isEdit', true)
-			// }
-			// // 输入框聚焦
-			// this.$nextTick(() => {
-			// 	if(this.$refs['slotTreeInput'+_data[this.NODE_KEY]]){
-			// 		this.$refs['slotTreeInput'+_data[this.NODE_KEY]].$refs.input.focus()
-			// 	}
-			// })
 		},
     handleAdd(_node, _data){// 新增节点
+      this.closeNodeInfo();
     	// 判断层级
       if(_node.level >= this.MAX_LEVEL){
           this.$message.warning("当前已达到"+ this.MAX_LEVEL + "级，无法新增！")
@@ -344,31 +288,19 @@ export default{
         }
       this.dialogVisible = true;
       console.log("父节点的ID",_data[this.NODE_KEY]);
-      this.nodeForm.caregoryPcode = _data[this.NODE_KEY];
-      this.nowAddPNodeDataData = _data;
-
-			console.log(_node, _data)
-		
-			// let obj = JSON.parse(JSON.stringify(this.initParam));// copy参数
-			// obj.pid = _data[this.NODE_KEY];// 父id
-			// obj[this.NODE_KEY] = --this.startId;// 节点id：逐次递减id
-			// // 判断字段是否存在
-			// if(!_data.children){
-			// 	this.$set(_data, 'children', [])
-			// }
-			// // 新增数据
-			// _data.children.push(obj)
-
-			// // 展开节点
-			// if(!_node.expanded){
-			// 	_node.expanded = true
-			// }
+      this.nodeForm.categoryPcode = _data[this.NODE_KEY];
+      this.nowAddPNodeData = _data;
 		},
     handleAddTop(){// 添加顶部节点
+      this.closeNodeInfo();
       this.dialogVisible = true;
-			// let obj = JSON.parse(JSON.stringify(this.initParam));// copy参数
-			// obj[this.NODE_KEY] = --this.startId;// 节点id：逐次递减id
-			// this.setTree.push(obj)
+    },
+    //清空弹窗的表单数据
+    closeNodeInfo(){
+      this.nodeForm.categoryName = '';
+      this.nodeForm.categoryDesc = '';
+      this.nodeForm.categoryCode = null;
+      this.nodeForm.categoryPcode = null;
     },
     // 弹窗增加节点
     addNodeCateGory(){
@@ -379,35 +311,51 @@ export default{
           return false;
         }
         that.submitLoading = true;
-        addNodeType(this.nodeForm).then(res=>{
-          console.log('新增的节点',res);
-          if(res && res.code === 200){
-            // 为新增节点赋id
-            if(that.nodeForm.caregoryPcode){
-              that.nodeForm.caregoryCode = res.data; //子节点
-              if(!that.nowAddPNodeData.children){
-                this.$set(that.nowAddPNodeData, 'children', [])
-              }
-              that.nowAddPNodeData.children.push({
-                id:res.data,
-                pid:that.nodeForm.caregoryPcode,
-                name:that.nodeForm.categoryName,
-              })
-            }else{
-              that.nodeForm.caregoryPcode = res.data; //父节点
-              that.setTree.push({
-                name: that.nodeForm.categoryName,
-                id:res.data,
-                children: [],
-              })
+        if(that.nodeForm.id){
+          editNodeType(that.nodeForm.id,that.nodeForm).then(res=>{
+            if(res && res.code === 200){
+              that.$message.success('修改商品类别成功');
             }
-          }
-          that.submitLoading = false;
-          that.dialogVisible = false;
-        }).catch(err=>{
-          that.submitLoading = false;
-          that.dialogVisible = false;
-        })
+            that.getTreeInfo();
+            that.submitLoading = false;
+            that.dialogVisible = false;
+          }).catch()
+        }else{
+          addNodeType(that.nodeForm).then(res=>{
+            console.log('新增的节点',res);
+            if(res && res.code === 200){
+              // 为新增节点赋id
+              that.$message.success('新增商品类别成功');
+              that.nodeForm.categoryCode = res.data; //子节点
+              if(that.nodeForm.categoryPcode){
+                if(!that.nowAddPNodeData.children){
+                  this.$set(that.nowAddPNodeData, 'children', []); //如果这个节点没有子节点  就给他增加空的子节点数组
+                }
+                that.nowAddPNodeData.children.push({
+                  categoryCode:res.data,
+                  categoryPcode:that.nodeForm.categoryPcode,
+                  categoryName:that.nodeForm.categoryName,
+                })
+              }else{
+                that.setTree.push({
+                  categoryName: that.nodeForm.categoryName,
+                  categoryCode:res.data,
+                  children: [],
+                })
+              }
+            }
+            if(!that.nowAddPNode.expanded){
+              that.nowAddPNode.expanded = true
+            }
+            that.submitLoading = false;
+            that.dialogVisible = false;
+            that.getTreeInfo();
+          }).catch(err=>{
+            that.submitLoading = false;
+            that.dialogVisible = false;
+          })
+        }
+
       });
     },
     // 关闭节点弹窗
@@ -419,8 +367,6 @@ export default{
       getTreeList().then(res=>{
         if(res && res.code === 200){
           that.setTree = res.data;
-          console.log('tree',that.setTree);
-          
         }
       }).catch()
     },
@@ -428,12 +374,9 @@ export default{
       const that = this;
       var id = '';//所点击的节点的id
       that.dataListLoading = true;
-      getGoodsList(id,{
+      getGoodsList({
         page:that.page,
         pageSize:that.pageSize,
-        goodsType:that.goodsType,
-        supplier:that.supplier,
-        name:that.name,
       }).then(res=>{
         if(res && res.code === 200){
           that.goodsData = res.data.rows;
@@ -475,8 +418,13 @@ export default{
     currentChangeHandle(val){
       this.page = val;
     },
+    // 选中的商品
     handleSelectionChange(val) {
       this.multipleSelection = val;
+    },
+
+    toggleSelection(){
+      this.$refs.eltable.clearSelection();
     },
     indexMethod(index) {
       const _page = this.page > 0 ? this.page - 1 : this.page;

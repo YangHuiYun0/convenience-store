@@ -92,6 +92,7 @@
 <script>
 import HeadTop from "../../components/headTop";
 import MemberLevel from "./memberLevel";
+import moment from 'moment';
 import { addStaff,delMember,getStaff,editStaff,getMemberList } from "../../api/user";
 export default {
   data(){
@@ -264,7 +265,10 @@ export default {
         })
       })
     },
-    
+    long2DateStr(time) {
+      var s = moment(new Date(time)).format('YYYY-MM-DD HH:mm');
+      return s;
+    },
   }
 }
 </script>
