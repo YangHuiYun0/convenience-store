@@ -1,5 +1,5 @@
 import request from "../util/request";
-const BASE_API = 'http://192.168.0.107:9090'
+
 
 // ===========店员管理api==========
 export function addStaff(id,data) {
