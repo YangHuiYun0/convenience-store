@@ -19,19 +19,19 @@
               :accordion='true'>
                 <div class="comp-tr-node" slot-scope="{ node, data }">
                   <!-- 编辑状态 -->
-                  <template v-if="node.isEdit">
-                    <el-input v-model="data.name" 
+                  <!-- <template v-if="node.isEdit">
+                    <el-input v-model="data.categoryName" 
                       autofocus
                       size="mini"
                       :ref="'slotTreeInput'+data[NODE_KEY]"
                       @blur.stop="handleInput(node, data)"
                       @keyup.enter.native="handleInput(node, data)"></el-input>
-                  </template>
+                  </template> -->
                   <!-- 非编辑状态 -->
-                  <template v-else>
+                  <template>
                     <!-- 名称： 新增节点增加class（is-new） -->
                     <span :class="[data[NODE_KEY] < NODE_ID_START ? 'is-new' : '', 'comp-tr-node--name']">
-                      {{ node.label }}
+                      {{ data.categoryName }}
                     </span>
                     <span class="comp-tr-node--btns">
                       <!-- 新增 -->
@@ -150,6 +150,7 @@ import {
   getNodeType,
   delGoods,
   getGoodsList,
+  getTreeList,
  } from "../../api/goods";
 export default{
 	data(){
@@ -166,7 +167,7 @@ export default{
       nowEditNodeData:'',//所编辑节点的数据
       parentNodeId:'',
       dialogVisible: false,
-			NODE_KEY: 'id',// id对应字段
+			NODE_KEY: 'categoryPcode',// id对应字段
 			MAX_LEVEL: 2,// 设定最大层级
 			NODE_ID_START: 0,// 新增节点id，逐次递减
 			startId: null,
@@ -256,7 +257,8 @@ export default{
     HeadTop,
   },
   mounted(){
-    this.getListInfo();
+    // this.getListInfo();
+    this.getTreeInfo();
   },
 	methods: {
      getDataLabel(type){
@@ -411,6 +413,16 @@ export default{
     // 关闭节点弹窗
     handleClose(done) {
       this.dialogVisible = false
+    },
+    getTreeInfo(){
+      const that = this;
+      getTreeList().then(res=>{
+        if(res && res.code === 200){
+          that.setTree = res.data;
+          console.log('tree',that.setTree);
+          
+        }
+      }).catch()
     },
     getListInfo(){
       const that = this;

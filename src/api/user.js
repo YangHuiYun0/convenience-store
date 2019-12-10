@@ -1,6 +1,5 @@
 import request from "../util/request";
 
-
 // ===========店员管理api==========
 export function addStaff(id,data) {
     return request({
@@ -89,7 +88,7 @@ export function getMember(id) {
 //查列表
 export function getMemberList(params) {
     return request({
-        url:'/user/querySalesList',
+        url:'/user/queryCustomerList',
         method:'get',
         params
     })

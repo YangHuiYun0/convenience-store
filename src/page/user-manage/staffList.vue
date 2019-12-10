@@ -109,7 +109,7 @@ export default {
       workNumber:'',
       name:'',
       staffData:[],
-      staffTable:['index','name','userName','password','sex','phone'],
+      staffTable:['index','name','userName','sex','phone'],
       // 增加弹窗
       dialogVisible:false,
       staffForm:{
