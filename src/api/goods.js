@@ -39,21 +39,6 @@ export function delSupplier(id) {
     })
 }
 
-// 增加商品类别
-export function addNodeType(data) {
-    return request({
-        url:'/category/addCategory',
-        method:'post',
-        data
-    })
-}
-export function getNodeType(data) {
-    return request({
-        url:'/category/addCategory',
-        method:'post',
-        data
-    })
-}
 export function addGoods(id,data) {
     return request({
         url:'/supplier/addSupplier',
@@ -86,7 +71,7 @@ export function delGoods(id) {
 }
 export function getGoodsList(params) {
     return request({
-        url:`/supplier/querySupplierList`,
+        url:`/goods/queryGoodsList`,
         method:'get',
         params
     })
@@ -100,3 +85,33 @@ export function getTreeList() {
     })
 }
 
+//删除树节点（商品类别）
+export function delTreeNode(id) {
+    return request({
+        url:'/category/deleteCategory/'+id,
+        method:'delete',
+    })
+}
+// 增加商品类别
+export function addNodeType(data) {
+    return request({
+        url:'/category/addCategory',
+        method:'post',
+        data
+    })
+}
+// 获取商品类别
+export function getNodeType(id) {
+    return request({
+        url:`/category/getCategory/${id}`,
+        method:'get',
+    })
+}
+//编辑商品类别
+export function editNodeType(id,data) {
+    return request({
+        url:`/category/updateCategory/${id}`,
+        method:'put',
+        data
+    })
+}

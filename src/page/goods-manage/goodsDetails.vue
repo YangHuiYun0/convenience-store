@@ -6,24 +6,24 @@
       <el-card>
             <el-row>
               <el-col :span="10">
-                <el-form-item label="商品名称" prop="name">
-                  <el-input v-model="dataForm.name" placeholder="请输入商品名称" show-word-limit maxlength=12
+                <el-form-item label="商品名称" prop="goodsName">
+                  <el-input v-model="dataForm.goodsName" placeholder="请输入商品名称" show-word-limit maxlength=12
                             clearable></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="10">
                 <el-form-item >
-                  <el-radio v-model="dataForm.status" :label=1 >上架</el-radio>
-                  <el-radio v-model="dataForm.status" :label=0>下架</el-radio>
+                  <el-radio v-model="dataForm.goodsStatus" :label=1 >上架</el-radio>
+                  <el-radio v-model="dataForm.goodsStatus" :label=0>下架</el-radio>
                 </el-form-item>
               </el-col>
             </el-row>
-            <el-form-item label="商品编号" prop="goodsId">
-              <el-input v-model="dataForm.goodsId" placeholder="请输入商品编号" show-word-limit maxlength=6 style="width:300px"
+            <el-form-item label="商品编号" prop="goodsCode">
+              <el-input v-model="dataForm.goodsCode" placeholder="请输入商品编号" show-word-limit maxlength=6 style="width:300px"
                         clearable></el-input>
             </el-form-item>
             <el-form-item label="商品类别" >
-              <el-select v-model="dataForm.goodsType" clearable placeholder="商品类别">
+              <el-select v-model="dataForm.categoryName" clearable placeholder="商品类别">
                 <el-option
                   v-for="item in goodsTypeList"
                   :key="item.id"
@@ -49,7 +49,7 @@
                         clearable></el-input>
             </el-form-item>
             <el-form-item label="供应商" >
-              <el-select v-model="dataForm.supplier" clearable placeholder="请选择">
+              <el-select v-model="dataForm.supplierName" clearable placeholder="请选择">
                 <el-option
                   v-for="item in supplierTypeList"
                   :key="item.id"
@@ -58,20 +58,20 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="进价" prop="purchasePrice">
-              <el-input v-model="dataForm.purchasePrice" placeholder="请输入商品进价" show-word-limit maxlength=6
+            <el-form-item label="进价" prop="goodsBid">
+              <el-input v-model="dataForm.goodsBid" placeholder="请输入商品进价" show-word-limit maxlength=6
                         clearable style="width:300px"></el-input><span class="tip">&nbsp;&nbsp;元</span>
             </el-form-item>
-            <el-form-item label="售价" prop="sellPrice">
-              <el-input v-model="dataForm.sellPrice" placeholder="请输入商品售价" show-word-limit maxlength=6
+            <el-form-item label="售价" prop="goodsPrice">
+              <el-input v-model="dataForm.goodsPrice" placeholder="请输入商品售价" show-word-limit maxlength=6
                         clearable style="width:300px"></el-input><span class="tip">&nbsp;&nbsp;元</span>
             </el-form-item>
-            <el-form-item label="库存" prop="inventory">
-              <el-input v-model="dataForm.inventory" placeholder="请输入商品库存" show-word-limit maxlength=6
+            <el-form-item label="库存" prop="goodsStock">
+              <el-input v-model="dataForm.goodsStock" placeholder="请输入商品库存" show-word-limit maxlength=6
                         clearable style="width:300px"></el-input>
             </el-form-item>
-            <el-form-item label="所获积分" prop="integral">
-              <el-input v-model="dataForm.integral" placeholder="请输入所获得的积分" show-word-limit maxlength=6
+            <el-form-item label="所获积分" prop="goodsPoints">
+              <el-input v-model="dataForm.goodsPoints" placeholder="请输入所获得的积分" show-word-limit maxlength=6
                         clearable style="width:300px"></el-input>
             </el-form-item>
       </el-card>
@@ -97,15 +97,15 @@ export default {
         callback();
       }
     }
-    const inventoryRequire = (rule, value, callback) => {
-      if (!String(this.dataForm.inventory).match(/^\+?[1-9]\d*$/)) {
+    const goodsStockRequire = (rule, value, callback) => {
+      if (!String(this.dataForm.goodsStock).match(/^\+?[1-9]\d*$/)) {
         callback(new Error('请输入大于0的整数'));
       }else{
         callback();
       }
     }
-    const integralRequire = (rule, value, callback) => {
-      if (!String(this.dataForm.inventory).match(/^\+?[1-9]\d*$/)) {
+    const goodsPointsRequire = (rule, value, callback) => {
+      if (!String(this.dataForm.goodsPoints).match(/^\+?[1-9]\d*$/)) {
         callback(new Error('请输入大于0的整数'));
       }else{
         callback();
@@ -114,24 +114,25 @@ export default {
     return{
       submitLoading:false,
       dataForm:{
-        name:'',
-        status:1,
-        goodsId:this.$route.query['id']||'',
-        goodsType:'',//商品类别
+        id:this.$route.query['id']||'',
+        goodsName:'',
+        goodsStatus:1,
+        goodsCode:'',
+        categoryName:'',//商品类别
         goodsImgUrl:'',
         goodsUnit:'',
         supplier:'',
-        purchasePrice:'',
-        sellPrice:'',
-        inventory:'',
+        goodsBid:'',
+        goodsPrice:'',
+        goodsStock:'',
       },
       goodsTypeList:[{id:'',label:'请选择'},{id:'1',label:'饮料汽水'},{id:'2',label:'膨化零食'}],
       supplierTypeList:[{id:'',label:'请选择'},{id:'1',label:'平板农场'},{id:'2',label:'沃尔玛场'}],
       rules:{
-        name:[
-           { required: true, message: '请输入商品名称', trigger: 'blur' },
+        goodsName:[
+          { required: true, message: '请输入商品名称', trigger: 'blur' },
         ],
-        goodsId:[
+        goodsCode:[
           { required: true, message: '请输入商品编号', trigger: 'blur' },
         ],
         goodsImgUrl:[
@@ -140,21 +141,21 @@ export default {
         goodsUnit:[
           { required: true, message: '请输入商品单位', trigger: 'blur' },
         ],
-        purchasePrice:[
+        goodsBid:[
           { required: true, message: '请输入商品进价', trigger: 'blur' },
           { required: true, trigger: 'change', validator: priceRequire }
         ],
-        sellPrice:[
+        goodsPrice:[
           { required: true, message: '请输入商品售价', trigger: 'blur' },
           { required: true, trigger: 'change', validator: priceRequire }
         ],
-        inventory:[
+        goodsStock:[
           { required: true, message: '请输入库存量', trigger: 'blur' },
-          { required: true, trigger: 'change', validator: inventoryRequire }
+          { required: true, trigger: 'change', validator: goodsStockRequire }
         ],
-        integral:[
+        goodsPoints:[
           { required: true, message: '请输入获得的积分', trigger: 'blur' },
-          { required: true, trigger: 'change', validator: integralRequire }
+          { required: true, trigger: 'change', validator: goodsPointsRequire }
         ],
       }
     }
@@ -168,8 +169,8 @@ export default {
   methods: {
       getGoodsInfo(){
         const that = this;
-        if(that.dataForm.goodsId){
-          getGoods(that.dataForm.goodsId).then(res=>{
+        if(that.dataForm.id){
+          getGoods(that.dataForm.id).then(res=>{
             if(res && res.code === 200){
               that.dataForm = res.data;
             }else{
@@ -190,11 +191,13 @@ export default {
             return false;
           }
           that.submitLoading = true;
-          const submitFun = that.dataForm.goodsId ? editGoods : addGoods;
-          submitFun(that.dataForm.goodsId,that.dataForm).then(res=>{
+          const submitFun = that.dataForm.id ? editGoods : addGoods;
+          submitFun(that.dataForm.id,that.dataForm).then(res=>{
             console.log('res:',res);
             if(res && res.code === 200){
-              
+              that.$router.push({
+                path: '/goods-manage-goods',
+              })
             }else{
               that.$message.error(res.msg)
             }
