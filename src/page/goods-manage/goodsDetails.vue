@@ -19,7 +19,7 @@
               </el-col>
             </el-row>
             <el-form-item label="商品编号" prop="goodsCode">
-              <el-input v-model="dataForm.goodsCode" placeholder="请输入商品编号" show-word-limit maxlength=6 style="width:300px"
+              <el-input v-model="dataForm.goodsCode" placeholder="请输入商品编号" show-word-limit maxlength=12 style="width:300px"
                         clearable></el-input>
             </el-form-item>
             <el-form-item label="商品类别" >
@@ -27,12 +27,12 @@
                 <el-option
                   v-for="item in goodsTypeList"
                   :key="item.id"
-                  :label="item.label"
+                  :label="item.categoryName"
                   :value="item.id">
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="商品图片" prop="goodsImgUrl">
+            <!-- <el-form-item label="商品图片" prop="goodsImgUrl">
               <el-upload
                 class="avatar-uploader"
                 action=""
@@ -43,7 +43,7 @@
                 <img v-if="dataForm.goodsImgUrl" :src="dataForm.goodsImgUrl" class="avatar">
                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
               </el-upload>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="单位" prop="goodsUnit">
               <el-input v-model="dataForm.goodsUnit" placeholder="请输入商品编号" show-word-limit maxlength=6 style="width:300px"
                         clearable></el-input>
@@ -53,7 +53,7 @@
                 <el-option
                   v-for="item in supplierTypeList"
                   :key="item.id"
-                  :label="item.label"
+                  :label="item.supplierName"
                   :value="item.id">
                 </el-option>
               </el-select>
@@ -87,11 +87,11 @@
 
 <script>
 import HeadTop from "../../components/headTop";
-import { getGoods,addGoods,editGoods } from "@/api/goods";
+import { getGoods,addGoods,editGoods,getSupplierList,getChildrenType } from "@/api/goods";
 export default {
   data(){
     const priceRequire = (rule, value, callback) => {
-      if (!String(value).match(/^\+?[0-9]{1,2}?(\.[0-9]{1,2})*$/)) {
+      if (!String(value).match(/^\+?[0-9]?(\.[0-9]{1,2})*$/)) {
         callback(new Error('请输入最多保留 2 位小数的数值'));
       } else {
         callback();
@@ -111,6 +111,13 @@ export default {
         callback();
       }
     }
+    const goodsCodeRequire =  (rule, value, callback) => {
+      if (!String(this.dataForm.goodsCode).match(/^\+?[1-9]\d*$/)) {
+        callback(new Error('请输入大于0的整数'));
+      }else{
+        callback();
+      }
+    }
     return{
       submitLoading:false,
       dataForm:{
@@ -119,21 +126,21 @@ export default {
         goodsStatus:1,
         goodsCode:'',
         categoryName:'',//商品类别
-        goodsImgUrl:'',
         goodsUnit:'',
-        supplier:'',
+        supplierName:'',
         goodsBid:'',
         goodsPrice:'',
         goodsStock:'',
       },
-      goodsTypeList:[{id:'',label:'请选择'},{id:'1',label:'饮料汽水'},{id:'2',label:'膨化零食'}],
-      supplierTypeList:[{id:'',label:'请选择'},{id:'1',label:'平板农场'},{id:'2',label:'沃尔玛场'}],
+      goodsTypeList:[],
+      supplierTypeList:[],
       rules:{
         goodsName:[
           { required: true, message: '请输入商品名称', trigger: 'blur' },
         ],
         goodsCode:[
           { required: true, message: '请输入商品编号', trigger: 'blur' },
+          { required: true, trigger: 'change', validator: goodsCodeRequire }
         ],
         goodsImgUrl:[
           { required: true, message: '请选择商品图片', trigger: 'blur' },
@@ -165,6 +172,8 @@ export default {
   },
   mounted(){
     this.getGoodsInfo();
+    this.getSupplierInfo();
+    this.getNodeTypeInfo();
   },
   methods: {
       getGoodsInfo(){
@@ -213,6 +222,31 @@ export default {
         this.$router.push({
           path: '/goods-manage-goods',
         });
+      },
+
+      getSupplierInfo(){
+        const that = this;
+        getSupplierList({
+          page:0,
+          size:100,
+        }).then(res=>{
+          if(res && res.code === 200){
+            that.supplierTypeList = res.data.rows;
+          }else{
+            that.$message.error(res.msg)
+          }
+        },()=>{
+        })
+      },
+
+      getNodeTypeInfo(){
+        var _nodeId = this.$route.query['typeId']
+        const that = this;
+        getChildrenType(_nodeId).then(res=>{
+          if(res && res.code === 200){
+            that.goodsTypeList = res.data;
+          }
+        })
       },
 
       handleAvatarSuccess(res, file) {
