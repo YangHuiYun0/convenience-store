@@ -73,6 +73,7 @@
 
 <script>
 import HeadTop from "../../components/headTop";
+import { addBuyGoods } from "@/api/sales";
 export default {
   data(){
     return{
@@ -117,6 +118,20 @@ export default {
         return false;
       }
       this.stockFileList = fileList.slice(-1);
+      // 选择一个商品后 请求服务端  获取商品的数据  渲染列表
+      const that = this;
+      that.dataListLoading = true;
+      addBuyGoods().then(res=>{
+        if(res && res.code === 200){
+          that.sellGoodsData.push(res.data.rows);
+        }else {
+          that.$message.error(res.msg);
+        }
+        that.dataListLoading = false;
+      }).catch(err=>{
+        that.$message.error(err);
+        that.dataListLoading = false;
+      });
     },
     beforeUpload(file) {
       const spl = file.name.split('.');

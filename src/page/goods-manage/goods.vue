@@ -19,19 +19,19 @@
               :accordion='true'>
                 <div class="comp-tr-node" slot-scope="{ node, data }">
                   <!-- 编辑状态 -->
-                  <template v-if="node.isEdit">
-                    <el-input v-model="data.name" 
+                  <!-- <template v-if="node.isEdit">
+                    <el-input v-model="data.categoryName" 
                       autofocus
                       size="mini"
                       :ref="'slotTreeInput'+data[NODE_KEY]"
                       @blur.stop="handleInput(node, data)"
                       @keyup.enter.native="handleInput(node, data)"></el-input>
-                  </template>
+                  </template> -->
                   <!-- 非编辑状态 -->
-                  <template v-else>
+                  <template>
                     <!-- 名称： 新增节点增加class（is-new） -->
                     <span :class="[data[NODE_KEY] < NODE_ID_START ? 'is-new' : '', 'comp-tr-node--name']">
-                      {{ node.label }}
+                      {{ data.categoryName }}
                     </span>
                     <span class="comp-tr-node--btns">
                       <!-- 新增 -->
@@ -102,8 +102,8 @@
             <el-table-column label="操作" width="150" align="center">
               <template slot-scope="scope"> 
                 <!--编辑 删除 -->
-                <i class="el-icon-edit"  @click="editHandle();"></i> 
-                <i class="el-icon-delete" @click="delHandle();"></i>
+                <i class="el-icon-edit"  @click="addGoods(scope.row.id);"></i> 
+                <i class="el-icon-delete" @click="delHandle(scope.row,scope.$index);"></i>
               </template>
             </el-table-column>
           </el-table>
@@ -147,6 +147,10 @@
 import HeadTop from "../../components/headTop";
 import { 
   addNodeType,
+  getNodeType,
+  delGoods,
+  getGoodsList,
+  getTreeList,
  } from "../../api/goods";
 export default{
 	data(){
@@ -154,14 +158,16 @@ export default{
       submitLoading:false,
       isLoading: false,// 是否加载
       nodeForm:{
-        pCode:null,
+        caregoryPcode:null,
         categoryName:'',
         categoryDesc:'',
-        code:null,
+        caregoryCode:null,
       },
+      nowAddPNodeData:'',//新增节点的父节点
+      nowEditNodeData:'',//所编辑节点的数据
       parentNodeId:'',
       dialogVisible: false,
-			NODE_KEY: 'id',// id对应字段
+			NODE_KEY: 'categoryPcode',// id对应字段
 			MAX_LEVEL: 2,// 设定最大层级
 			NODE_ID_START: 0,// 新增节点id，逐次递减
 			startId: null,
@@ -250,6 +256,10 @@ export default{
   components: {
     HeadTop,
   },
+  mounted(){
+    // this.getListInfo();
+    this.getTreeInfo();
+  },
 	methods: {
      getDataLabel(type){
       const typeLabel = {
@@ -304,30 +314,41 @@ export default{
 				this.$set(_node, 'isEdit', false)
 			}
 		},
-		handleEdit(_node, _data){// 编辑节点
-			console.log(_node, _data)
-			// 设置编辑状态
-			if(!_node.isEdit){
-				this.$set(_node, 'isEdit', true)
-			}
-			// 输入框聚焦
-			this.$nextTick(() => {
-				if(this.$refs['slotTreeInput'+_data[this.NODE_KEY]]){
-					this.$refs['slotTreeInput'+_data[this.NODE_KEY]].$refs.input.focus()
-				}
-			})
+    handleEdit(_node, _data){// 编辑节点
+      console.log(_node, _data)
+      this.dialogVisible = true;
+      this.nowEditNodeData = _data;
+      const that = this;
+      getNodeType(_data[this.NODE_KEY]).then(res=>{
+        console.log('编辑的节点',res);
+        that.nodeForm = res.data;
+      }).catch(err=>{
+        that.$message.error(res.msg)
+      })
+			// // 设置编辑状态
+			// if(!_node.isEdit){
+			// 	this.$set(_node, 'isEdit', true)
+			// }
+			// // 输入框聚焦
+			// this.$nextTick(() => {
+			// 	if(this.$refs['slotTreeInput'+_data[this.NODE_KEY]]){
+			// 		this.$refs['slotTreeInput'+_data[this.NODE_KEY]].$refs.input.focus()
+			// 	}
+			// })
 		},
     handleAdd(_node, _data){// 新增节点
+    	// 判断层级
+      if(_node.level >= this.MAX_LEVEL){
+          this.$message.warning("当前已达到"+ this.MAX_LEVEL + "级，无法新增！")
+          return false;
+        }
       this.dialogVisible = true;
       console.log("父节点的ID",_data[this.NODE_KEY]);
-      
-      this.nodeForm.pCode = _data[this.NODE_KEY];
-			// console.log(_node, _data)
-			// // 判断层级
-			// if(_node.level >= this.MAX_LEVEL){
-			// 	this.$message.warning("当前已达到"+ this.MAX_LEVEL + "级，无法新增！")
-			// 	return false;
-			// }
+      this.nodeForm.caregoryPcode = _data[this.NODE_KEY];
+      this.nowAddPNodeDataData = _data;
+
+			console.log(_node, _data)
+		
 			// let obj = JSON.parse(JSON.stringify(this.initParam));// copy参数
 			// obj.pid = _data[this.NODE_KEY];// 父id
 			// obj[this.NODE_KEY] = --this.startId;// 节点id：逐次递减id
@@ -361,10 +382,24 @@ export default{
         addNodeType(this.nodeForm).then(res=>{
           console.log('新增的节点',res);
           if(res && res.code === 200){
-            if(that.nodeForm.pCode){
-              that.nodeForm.code = res.data;
+            // 为新增节点赋id
+            if(that.nodeForm.caregoryPcode){
+              that.nodeForm.caregoryCode = res.data; //子节点
+              if(!that.nowAddPNodeData.children){
+                this.$set(that.nowAddPNodeData, 'children', [])
+              }
+              that.nowAddPNodeData.children.push({
+                id:res.data,
+                pid:that.nodeForm.caregoryPcode,
+                name:that.nodeForm.categoryName,
+              })
             }else{
-              that.nodeForm.pCode = res.data;
+              that.nodeForm.caregoryPcode = res.data; //父节点
+              that.setTree.push({
+                name: that.nodeForm.categoryName,
+                id:res.data,
+                children: [],
+              })
             }
           }
           that.submitLoading = false;
@@ -379,13 +414,64 @@ export default{
     handleClose(done) {
       this.dialogVisible = false
     },
-    addGoods(){
+    getTreeInfo(){
+      const that = this;
+      getTreeList().then(res=>{
+        if(res && res.code === 200){
+          that.setTree = res.data;
+          console.log('tree',that.setTree);
+          
+        }
+      }).catch()
+    },
+    getListInfo(){
+      const that = this;
+      var id = '';//所点击的节点的id
+      that.dataListLoading = true;
+      getGoodsList(id,{
+        page:that.page,
+        pageSize:that.pageSize,
+        goodsType:that.goodsType,
+        supplier:that.supplier,
+        name:that.name,
+      }).then(res=>{
+        if(res && res.code === 200){
+          that.goodsData = res.data.rows;
+          that.totalList = res.data.total;
+        }else{
+          that.$message.error(res.msg);
+        }
+        that.dataListLoading = false;
+      }).catch(err=>{
+        that.dataListLoading = false;
+      })
+    },
+    addGoods(id){
       this.$router.push({
-        path: '/goods-manage-goodsDetails'
+        path: '/goods-manage-goodsDetails',
+        query:{id}
       });
     },
-    editHandle(){},
-    delHandle(){},
+
+    delHandle(_row,index){
+      const that = this;
+      this.$confirm(`确定对「 ${_row.name} 」进行「 删除 」操作?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        delGoods(id).then(res=>{
+          if(res && res.code === 200){
+            that.$message.success(`删除商品 ${_row.name} 成功`);
+            that.goodsData.splice(index, 1);
+            that.totalList--;
+          }else{
+            that.$message.error(res.msg)
+          }
+        })
+      }).catch(()=>{});
+    },
+
     currentChangeHandle(val){
       this.page = val;
     },

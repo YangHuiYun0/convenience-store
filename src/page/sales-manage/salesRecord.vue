@@ -26,6 +26,7 @@
           </template>
         </el-table-column>
         <el-table-column v-for="item in salesTable"
+            :type="index === 0 ? 'index' :''"
             :label="getDataLabel(item)"
             :key="item" :prop="item"
             align="center">
@@ -45,6 +46,7 @@
 
 <script>
 import HeadTop from "../../components/headTop";
+import { getSalesRecord } from "@/api/sales";
 export default {
   data(){
     return{
@@ -73,6 +75,9 @@ export default {
   components: {
     HeadTop,
   },
+  mounted(){
+    this.getDataList('init');
+  },
   methods:{
     getDataLabel(type){
       const typeLabel = {
@@ -94,7 +99,32 @@ export default {
     },
     currentChangeHandle(val){
       this.page = val;
+      this.getDataList();
     },
+
+    getDataList(_type){
+      if(_type){
+        this.page = 0;
+      }
+      const that = this;
+      that.dataListLoading = true;
+      getDataList({
+        page:this.page,
+        pageSize:this.pageSize
+      }).then(res=>{
+        if(res && res.code === 200){
+          that.salesData = res.data.rows;
+          that.totalList = res.data.total;
+        }else{
+          this.$message.error(res.msg);
+        }
+        that.dataListLoading = false;
+      }).catch(err =>{
+        that.$message.error(err)
+        that.dataListLoading = false;
+      })
+    },
+
   }
 }
 </script>
