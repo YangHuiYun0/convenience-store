@@ -20,7 +20,7 @@
                 <div class="comp-tr-node" slot-scope="{ node, data }">
                   <template>
                     <!-- 名称： 新增节点增加class（is-new） -->
-                    <span :class="[data[NODE_KEY] < NODE_ID_START ? 'is-new' : '', 'comp-tr-node--name']">
+                    <span :class="[data[NODE_KEY] < NODE_ID_START ? 'is-new' : '', 'comp-tr-node--name']" @click="handleNode(node,data)">
                       {{ data.categoryName }}
                     </span>
                     <span class="comp-tr-node--btns">
@@ -37,29 +37,17 @@
         <el-col :xs="14" :sm="14" :md="16" :lg="18" :xl="20" style="padding:10px">
           <div style="margin-bottom:20px;text-align: right">
             <!-- <el-button type="danger" class="el-icon-delete"  @click="toggleSelection()" >删除选中</el-button> -->
-            <el-button type="success" class="el-icon-plus" @click="addGoods()" >增加商品</el-button>
+            <el-button type="success" class="el-icon-plus" @click="addGoods(id=null,handleNodeId)" v-if="handleNodeId" >增加商品</el-button>
           </div>
           <el-form label-width="100px">
             <el-row>
-              <el-col :span="6">
-                <el-form-item label="商品类别" >
-                  <el-select v-model="goodsType" clearable placeholder="商品类别">
-                    <el-option
-                      v-for="item in goodsTypeList"
-                      :key="item.id"
-                      :label="item.label"
-                      :value="item.id">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
+              <el-col :span="10">
                 <el-form-item label="供应商列表">
                   <el-select v-model="supplier" clearable placeholder="供应商列表">
                     <el-option
                       v-for="item in supplierTypeList"
                       :key="item.id"
-                      :label="item.label"
+                      :label="item.supplierName"
                       :value="item.id">
                     </el-option>
                   </el-select>
@@ -92,7 +80,7 @@
             <el-table-column label="操作" width="150" align="center">
               <template slot-scope="scope"> 
                 <!--编辑 删除 -->
-                <i class="el-icon-edit"  @click="addGoods(scope.row.id);"></i> 
+                <i class="el-icon-edit"  @click="addGoods(scope.row.id,handleNodeId);"></i> 
                 <i class="el-icon-delete" @click="delHandle(scope.row,scope.$index);"></i>
               </template>
             </el-table-column>
@@ -142,7 +130,8 @@ import {
   getGoodsList,
   getTreeList,
   delTreeNode,
-  editNodeType
+  editNodeType,
+  getSupplierList
  } from "../../api/goods";
 export default{
 	data(){
@@ -158,6 +147,7 @@ export default{
       nowAddPNodeData:'',//新增节点的父节点数据
       nowAddPNode:'',//新增节点的父节点
       nowEditNodeData:'',//所编辑节点的数据
+      handleNodeId:'',//所点击的节点编码
       parentNodeId:'',
       dialogVisible: false,
 			NODE_KEY: 'categoryCode',// id对应字段
@@ -182,8 +172,7 @@ export default{
       goodsType:'',//商品类别
       supplier:'',//供应商
       name:'',//商品名称
-      goodsTypeList:[{id:'',label:'请选择'},{id:'1',label:'饮料汽水'},{id:'2',label:'膨化零食'}],
-      supplierTypeList:[{id:'',label:'请选择'},{id:'1',label:'平板农场'},{id:'2',label:'沃尔玛场'}],
+      supplierTypeList:[],
       goodsTable:['index','goodsId','goodsType','name','unit','supplier','purchasePrice','integral','sellPrice','inventory'],
       goodsData:[],
       rules:{
@@ -206,6 +195,7 @@ export default{
   mounted(){
     this.getListInfo();
     this.getTreeInfo();
+    this.getSupplierInfo();
   },
 	methods: {
      getDataLabel(type){
@@ -295,6 +285,11 @@ export default{
       this.closeNodeInfo();
       this.dialogVisible = true;
     },
+    handleNode(_node, _data){
+      this.handleNodeId = _data.categoryCode;
+      console.log('所点击节点的id',this.handleNodeId);
+      
+    },
     //清空弹窗的表单数据
     closeNodeInfo(){
       this.nodeForm.categoryName = '';
@@ -376,7 +371,7 @@ export default{
       that.dataListLoading = true;
       getGoodsList({
         page:that.page,
-        pageSize:that.pageSize,
+        size:that.pageSize,
       }).then(res=>{
         if(res && res.code === 200){
           that.goodsData = res.data.rows;
@@ -389,10 +384,25 @@ export default{
         that.dataListLoading = false;
       })
     },
-    addGoods(id){
+    // 获取供应商列表
+    getSupplierInfo(){
+      const that = this;
+      getSupplierList({
+        page:0,
+        size:100,
+      }).then(res=>{
+        if(res && res.code === 200){
+          that.supplierTypeList = res.data.rows;
+        }else{
+          that.$message.error(res.msg)
+        }
+      },()=>{
+      })
+    },
+    addGoods(id,typeId){
       this.$router.push({
         path: '/goods-manage-goodsDetails',
-        query:{id}
+        query:{id,typeId}
       });
     },
 

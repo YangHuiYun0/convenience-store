@@ -41,7 +41,7 @@ export function delSupplier(id) {
 
 export function addGoods(id,data) {
     return request({
-        url:'/supplier/addSupplier',
+        url:'/goods/addGoods',
         method:'post',
         data
     })
@@ -49,7 +49,7 @@ export function addGoods(id,data) {
 
 export function editGoods(id,data) {
     return request({
-        url:`/supplier/updateSupplier/${id}`,
+        url:`/goods/updateGoods/${id}`,
         method:'put',
         data
     })
@@ -58,7 +58,7 @@ export function editGoods(id,data) {
 
 export function getGoods(id) {
     return request({
-        url:'/supplier/getSupplier/'+id,
+        url:'/goods/getGoods/'+id,
         method:'get',
     })
 }
@@ -113,5 +113,12 @@ export function editNodeType(id,data) {
         url:`/category/updateCategory/${id}`,
         method:'put',
         data
+    })
+}
+//查询商品类别子节点
+export function getChildrenType(code) {
+    return request({
+        url:`/category/getChildren/${code}`,
+        method:'get',
     })
 }
