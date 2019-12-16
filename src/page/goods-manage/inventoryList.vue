@@ -18,12 +18,12 @@
         <el-table-column label="库存量" align="center" min-width="110px">
           <template slot-scope="scope">
             <template v-if="scope.row.edit">
-              <el-input v-model="scope.row.totalAmount" class="edit-input" size="small" style="width:100px" />
+              <el-input v-model="scope.row.goodsStock" class="edit-input" size="small" style="width:100px" />
               <el-button  class="cancel-btn" size="small" icon="el-icon-refresh" type="warning"  @click="cancelEdit(scope.row)">
                 取消
               </el-button>
             </template>
-            <span v-else>{{ scope.row.totalAmount }}</span>
+            <span v-else>{{ scope.row.goodsStock }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="150" align="center">
@@ -32,7 +32,7 @@
             <el-button  v-if="scope.row.edit" :loading="submitLoading" type="primary"  size="small"  
               @click="confirmEdit(scope.row)">完成</el-button>
             <el-button v-else type="success" size="small"
-             @click="scope.row.edit=!scope.row.edit">编辑</el-button>
+             @click="scope.row.edit = !scope.row.edit">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -50,6 +50,7 @@
 
 <script>
 import HeadTop from "../../components/headTop";
+import { getGoodsList,editGoodsStock } from "../../api/goods";
 export default {
   data(){
     return{
@@ -60,8 +61,8 @@ export default {
       isShowList:true,
       submitLoading:false,
       name:'',
-      inventoryData:[{index:1,goodsId:'11',goodsType:'饮料',name:'可乐',supplier:'万达',editTime:'2019-11-11',totalAmount:'34',originalAmount:'34',edit:false}],
-      inventoryTable:['index','goodsId','goodsType','name','supplier','editTime'],
+      inventoryData:[],
+      inventoryTable:['index','goodsCode','categoryName','goodsName','supplierName','updateTime'],
     }
   },
   components: {
@@ -75,14 +76,22 @@ export default {
     getDataLabel(type){
       const typeLabel = {
         index:'序号',
-        goodsId:'商品编号',
-        goodsType:'商品类别',
-        name:'商品名称',
-        supplier:'供应商',
-        totalAmount:'库存量',
-        editTime:'编辑时间',
+        goodsCode:'商品编号',
+        categoryName:'商品类别',
+        goodsName:'商品名称',
+        supplierName:'供应商',
+        goodsStock:'库存量',
+        updateTime:'编辑时间',
       }
       return typeLabel[type] || '';
+    },
+    edit(_row,_index){
+      this.inventoryData.forEach((item,index) => {
+        if(index === _index){
+          item['edit'] = true;
+        }
+      });
+      this.$set(this,'inventoryData',this.inventoryData)
     },
     getDataList(_type){
       if(_type === 'init'){
@@ -90,13 +99,17 @@ export default {
       }
       this.dataListLoading = true;
       const that = this;
-      getInventoryList({
+      getGoodsList({
         page:this.page,
-        pageSize:this.pageSize,
-        name:this.name
+        size:this.pageSize,
+        goodsName:this.name
       }).then(res => {
         if(res && res.code === 200){
           that.inventoryData = res.data.rows;
+          that.inventoryData.forEach(item => {
+            item['edit'] = false;
+            item['originalAmount'] = item.goodsStock;
+          });
           that.totalList = res.data.total;
         }else{
           that.$message.error(res.msg)
@@ -107,7 +120,7 @@ export default {
       })
     },
     cancelEdit(row) {
-      row.totalAmount = row.originalAmount;
+      row.goodsStock = row.originalAmount;
       row.edit = false
       this.$message({
         message: '已恢复到原来的值',
@@ -116,22 +129,19 @@ export default {
     },
     confirmEdit(row) {
       row.edit = false;
-      row.originalAmount = row.totalAmount;
+      row.originalAmount = row.goodsStock;
       this.submitLoading = true;
-      editInventory({
-        id:row.id,
-        totalAmount:row.totalAmount,
-      }).then(res=>{
+      const that = this;
+      editGoodsStock(row.id,{stock:row.goodsStock}).then(res=>{
         if(res && res.code === 200){
           that.$message.success('修改成功')
         }else{
           that.$message.error(res.msg)
         }
         that.submitLoading = false;
-      }).catch(err=>{
-        that.$message.error(err);
+      },()=>{
         that.submitLoading = false;
-      })
+      });
     },
     currentChangeHandle(val){
       this.page = val;
