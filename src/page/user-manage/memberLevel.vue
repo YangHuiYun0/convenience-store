@@ -4,7 +4,7 @@
             :visible.sync="levelVisible"
             :modal-append-to-body='false'
             width='500px'>
-      <el-form :model="levelForm" ref="levelForm" :rules="rules" >
+      <el-form :model="levelForm" ref="levelForm" label-width="100px" :rules="rules" >
          <el-form-item label="普通会员" prop="ordinary">
           <el-input-number v-model="levelForm.ordinary"  placeholder="请输入积分范围" 
           :step="1" :min="0" :max=' Number(levelForm.silver)-1' style="width:300px"></el-input-number>
@@ -46,12 +46,12 @@ export default {
       levelVisible:true,
       submitLoading:false,
       levelForm:{
-        ordinary:'10',
-        silver:'40',
-        gold:'100',
-        platinum:'200',
-        jewel:'400',
-        super:'800',
+        ordinary:'',
+        silver:'',
+        gold:'',
+        platinum:'',
+        jewel:'',
+        super:'',
       },
       rules:{
         ordinary:[ {required: true, message: '请输入会员积分', trigger: 'blur'}],

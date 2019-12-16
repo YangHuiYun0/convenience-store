@@ -41,7 +41,7 @@
             :modal-append-to-body='false'
             width='500px'
             v-if="dialogVisible">
-      <el-form :model="staffForm" ref="staffForm" :rules="rules">
+      <el-form :model="staffForm" ref="staffForm" label-width="100px" :rules="rules">
         <el-form-item label="用户名" prop="userName">
           <el-input v-model="staffForm.userName"  placeholder="请输入店员登录用户名"  show-word-limit maxlength=12
                     clearable style="width:300px" :disabled="staffForm.id!==null"></el-input>

@@ -13,17 +13,29 @@
               </el-col>
               <el-col :span="10">
                 <el-form-item >
-                  <el-radio v-model="dataForm.goodsStatus" :label=1 >上架</el-radio>
-                  <el-radio v-model="dataForm.goodsStatus" :label=0>下架</el-radio>
+                  <el-radio v-model="dataForm.goodsStatus" label='1' >上架</el-radio>
+                  <el-radio v-model="dataForm.goodsStatus" label='0'>下架</el-radio>
                 </el-form-item>
               </el-col>
             </el-row>
             <el-form-item label="商品编号" prop="goodsCode">
-              <el-input v-model="dataForm.goodsCode" placeholder="请输入商品编号" show-word-limit maxlength=12 style="width:300px"
+              <div style="display: flex;">
+                <el-input v-model="dataForm.goodsCode" disabled style="width:300px; margin-right: 40px"
                         clearable></el-input>
+                <el-upload
+                  class="upload-demo"
+                  action=""
+                  :file-list="stockFileList"
+                  :on-change="handleChange"
+                  :on-remove="handleRemove"
+                  :before-upload="beforeUpload"
+                  :auto-upload="false" v-if="!dataForm.goodsCode">
+                  <el-button size="small" type="primary">上传条形码</el-button>
+                </el-upload>
+              </div>
             </el-form-item>
             <el-form-item label="商品类别" >
-              <el-select v-model="dataForm.categoryName" clearable placeholder="商品类别">
+              <el-select v-model="dataForm.categoryId" clearable placeholder="商品类别">
                 <el-option
                   v-for="item in goodsTypeList"
                   :key="item.id"
@@ -32,24 +44,12 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <!-- <el-form-item label="商品图片" prop="goodsImgUrl">
-              <el-upload
-                class="avatar-uploader"
-                action=""
-                :show-file-list="false"
-                :on-success="handleAvatarSuccess"
-                :before-upload="beforeAvatarUpload"
-                :auto-upload='false'>
-                <img v-if="dataForm.goodsImgUrl" :src="dataForm.goodsImgUrl" class="avatar">
-                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-              </el-upload>
-            </el-form-item> -->
             <el-form-item label="单位" prop="goodsUnit">
               <el-input v-model="dataForm.goodsUnit" placeholder="请输入商品编号" show-word-limit maxlength=6 style="width:300px"
                         clearable></el-input>
             </el-form-item>
             <el-form-item label="供应商" >
-              <el-select v-model="dataForm.supplierName" clearable placeholder="请选择">
+              <el-select v-model="dataForm.supplierId" clearable placeholder="请选择">
                 <el-option
                   v-for="item in supplierTypeList"
                   :key="item.id"
@@ -59,19 +59,19 @@
               </el-select>
             </el-form-item>
             <el-form-item label="进价" prop="goodsBid">
-              <el-input v-model="dataForm.goodsBid" placeholder="请输入商品进价" show-word-limit maxlength=6
+              <el-input v-model="dataForm.goodsBid" placeholder="请输入商品进价" show-word-limit maxlength=9
                         clearable style="width:300px"></el-input><span class="tip">&nbsp;&nbsp;元</span>
             </el-form-item>
             <el-form-item label="售价" prop="goodsPrice">
-              <el-input v-model="dataForm.goodsPrice" placeholder="请输入商品售价" show-word-limit maxlength=6
+              <el-input v-model="dataForm.goodsPrice" placeholder="请输入商品售价" show-word-limit maxlength=9
                         clearable style="width:300px"></el-input><span class="tip">&nbsp;&nbsp;元</span>
             </el-form-item>
             <el-form-item label="库存" prop="goodsStock">
-              <el-input v-model="dataForm.goodsStock" placeholder="请输入商品库存" show-word-limit maxlength=6
+              <el-input v-model="dataForm.goodsStock" placeholder="请输入商品库存" show-word-limit maxlength=9
                         clearable style="width:300px"></el-input>
             </el-form-item>
             <el-form-item label="所获积分" prop="goodsPoints">
-              <el-input v-model="dataForm.goodsPoints" placeholder="请输入所获得的积分" show-word-limit maxlength=6
+              <el-input v-model="dataForm.goodsPoints" placeholder="请输入所获得的积分" show-word-limit maxlength=9
                         clearable style="width:300px"></el-input>
             </el-form-item>
       </el-card>
@@ -87,11 +87,18 @@
 
 <script>
 import HeadTop from "../../components/headTop";
-import { getGoods,addGoods,editGoods,getSupplierList,getChildrenType } from "@/api/goods";
+import { 
+  getGoods,
+  addGoods,
+  editGoods,
+  getSupplierList,
+  getChildrenType,
+  getGoodsCode,
+} from "@/api/goods";
 export default {
   data(){
     const priceRequire = (rule, value, callback) => {
-      if (!String(value).match(/^\+?[0-9]?(\.[0-9]{1,2})*$/)) {
+      if (!String(value).match(/^[0-9]\d*(\.[0-9]{1,2})*$/)) {
         callback(new Error('请输入最多保留 2 位小数的数值'));
       } else {
         callback();
@@ -111,15 +118,16 @@ export default {
         callback();
       }
     }
-    const goodsCodeRequire =  (rule, value, callback) => {
-      if (!String(this.dataForm.goodsCode).match(/^\+?[1-9]\d*$/)) {
-        callback(new Error('请输入大于0的整数'));
-      }else{
-        callback();
-      }
-    }
+    // const goodsCodeRequire =  (rule, value, callback) => {
+    //   if (!String(this.dataForm.goodsCode).match(/^\+?[1-9]\d*$/)) {
+    //     callback(new Error('请输入大于0的整数'));
+    //   }else{
+    //     callback();
+    //   }
+    // }
     return{
       submitLoading:false,
+      stockFileList:[],
       dataForm:{
         id:this.$route.query['id']||'',
         goodsName:'',
@@ -138,10 +146,10 @@ export default {
         goodsName:[
           { required: true, message: '请输入商品名称', trigger: 'blur' },
         ],
-        goodsCode:[
-          { required: true, message: '请输入商品编号', trigger: 'blur' },
-          { required: true, trigger: 'change', validator: goodsCodeRequire }
-        ],
+        // goodsCode:[
+        //   { required: true, message: '请输入商品编号', trigger: 'blur' },
+        //   { required: true, trigger: 'change', validator: goodsCodeRequire }
+        // ],
         goodsImgUrl:[
           { required: true, message: '请选择商品图片', trigger: 'blur' },
         ],
@@ -150,11 +158,11 @@ export default {
         ],
         goodsBid:[
           { required: true, message: '请输入商品进价', trigger: 'blur' },
-          { required: true, trigger: 'change', validator: priceRequire }
+          { required: true, trigger: 'blur', validator: priceRequire }
         ],
         goodsPrice:[
           { required: true, message: '请输入商品售价', trigger: 'blur' },
-          { required: true, trigger: 'change', validator: priceRequire }
+          { required: true, trigger: 'blur', validator: priceRequire }
         ],
         goodsStock:[
           { required: true, message: '请输入库存量', trigger: 'blur' },
@@ -204,6 +212,7 @@ export default {
           submitFun(that.dataForm.id,that.dataForm).then(res=>{
             console.log('res:',res);
             if(res && res.code === 200){
+              that.$message.success(that.dataForm.id ? '修改成功' : '保存成功');
               that.$router.push({
                 path: '/goods-manage-goods',
               })
@@ -219,6 +228,8 @@ export default {
       },
 
       cancelForm(){
+        this.$refs.dataForm.resetFields();
+        this.stockFileList = [];
         this.$router.push({
           path: '/goods-manage-goods',
         });
@@ -248,7 +259,41 @@ export default {
           }
         })
       },
+      handleChange(file, fileList) {
+        console.log(file);
+        const spl = file.name.split('.');
+        if (spl[spl.length - 1] !== 'png') {
+          this.$message.error('文件格式不符，请上传png格式的文件');
+          this.stockFileList = [];
+          return false;
+        }
+        this.stockFileList = fileList.slice(-1);
+        // 选择一个商品后 请求服务端  获取商品的数据  渲染列表
+        var uploadBody = new FormData();
+        uploadBody.append('file', file.raw)
+        const that = this;
+         getGoodsCode(uploadBody).then(res=>{
+          if(res && res.code === 200){
+            that.dataForm.goodsCode = res.data;
+          }else {
+            that.$message.error(res.msg);
+          }
+        }).catch(err=>{
+          that.$message.error(err);
+        });
+      },
 
+      beforeUpload(file) {
+        const spl = file.name.split('.');
+        if (spl[spl.length - 1] !== 'png' && spl[spl.length - 1] !== 'jpeg' ) {
+          this.$message.error('文件格式不符，请上传 png 格式的文件');
+          this.stockFileList = [];
+          return false;
+        }
+      },
+      handleRemove(file, fileList) {
+        this.stockFileList = fileList;
+      },
       handleAvatarSuccess(res, file) {
         this.dataForm.goodsImgUrl = URL.createObjectURL(file.raw);
       },

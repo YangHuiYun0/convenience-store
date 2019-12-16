@@ -57,7 +57,7 @@
             :visible.sync="dialogVisible"
             :modal-append-to-body='false'
             width='500px'>
-      <el-form :model="memberForm" ref="memberForm" :rules="rules">
+      <el-form :model="memberForm" ref="memberForm" label-width="100px" :rules="rules">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="memberForm.name" placeholder="请输入姓名" show-word-limit maxlength=6
                     clearable style="width:300px"></el-input>
