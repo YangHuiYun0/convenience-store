@@ -122,3 +122,12 @@ export function getChildrenType(code) {
         method:'get',
     })
 }
+//获取商品编码
+
+export function getGoodsCode(data) {
+    return request({
+        url:`/goods/getCodeByImg`,
+        method:'post',
+        data
+    })
+}

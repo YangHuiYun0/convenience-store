@@ -39,6 +39,7 @@
         <el-form-item label="类别编码" prop="typeId">
           <el-input v-model="addTypeForm.typeId" placeholder="请输入类别编码" show-word-limit maxlength=12
                     clearable style="width:300px"></el-input>
+          
         </el-form-item>
         <el-form-item label="类别名称" prop="name">
           <el-input v-model="addTypeForm.name"  placeholder="请输入类别名称" show-word-limit maxlength=12

@@ -9,7 +9,7 @@
 		        <el-button class="comp-tr-top" 
               type="primary" 
               size="small" 
-              @click="handleAddTop">添加顶级节点</el-button>
+              @click="handleAddTop">添加商品大类</el-button>
             <el-tree ref="SlotTree"
               :data="setTree"
               :props="defaultProps"
@@ -19,8 +19,8 @@
               :accordion='true'>
                 <div class="comp-tr-node" slot-scope="{ node, data }">
                   <template>
-                    <!-- 名称： 新增节点增加class（is-new） -->
-                    <span :class="[data[NODE_KEY] < NODE_ID_START ? 'is-new' : '', 'comp-tr-node--name']" @click="handleNode(node,data)">
+                    <!-- 名称-->
+                    <span class="comp-tr-node--name" @click="handleNode(node,data)">
                       {{ data.categoryName }}
                     </span>
                     <span class="comp-tr-node--btns">
@@ -36,12 +36,11 @@
         </el-col>
         <el-col :xs="14" :sm="14" :md="16" :lg="18" :xl="20" style="padding:10px">
           <div style="margin-bottom:20px;text-align: right">
-            <!-- <el-button type="danger" class="el-icon-delete"  @click="toggleSelection()" >删除选中</el-button> -->
             <el-button type="success" class="el-icon-plus" @click="addGoods(id=null,handleNodeId)" v-if="handleNodeId" >增加商品</el-button>
           </div>
           <el-form label-width="100px">
             <el-row>
-              <el-col :span="10">
+              <el-col :span="7">
                 <el-form-item label="供应商列表">
                   <el-select v-model="supplier" clearable placeholder="供应商列表">
                     <el-option
@@ -54,22 +53,16 @@
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <!-- <el-form-item label="商品名称" label-width="100px"> -->
-                  <el-input v-model="name" style="width:200px" placeholder="请输入商品名称"></el-input>
-                <!-- </el-form-item> -->
+                <el-input v-model="name" style="width:200px" placeholder="请输入商品名称"></el-input>
               </el-col>
               <el-col :span="4" style="">
-                <el-button type="info" style="text-align: right;">查询</el-button>
+                <el-button type="info" style="text-align: right;" @click="getListInfo()">查询</el-button>
               </el-col>
             </el-row>
           </el-form>
           <el-table :data="goodsData" v-loading="dataListLoading"
            :row-key="row => row.index" ref="eltable"
            @selection-change="handleSelectionChange">
-            <!-- <el-table-column
-              type="selection"
-              width="55">
-            </el-table-column> -->
             <el-table-column v-for="(item,index) in goodsTable"
                 :label="getDataLabel(item)"
                 :width="(index === 0 && 50)"
@@ -80,8 +73,12 @@
             <el-table-column label="操作" width="150" align="center">
               <template slot-scope="scope"> 
                 <!--编辑 删除 -->
-                <i class="el-icon-edit"  @click="addGoods(scope.row.id,handleNodeId);"></i> 
-                <i class="el-icon-delete" @click="delHandle(scope.row,scope.$index);"></i>
+                <el-tooltip class="item" effect="dark" content="编辑" placement="top">
+                  <i class="el-icon-edit"  @click="addGoods(scope.row.id,handleNodeId);"></i> 
+                </el-tooltip>
+                <el-tooltip class="item" effect="dark" content="删除" placement="top">
+                  <i class="el-icon-delete" @click="delHandle(scope.row,scope.$index);"></i>
+                </el-tooltip>
               </template>
             </el-table-column>
           </el-table>
@@ -97,18 +94,18 @@
       </el-row>
      </div>
      <el-dialog
-      title="新增节点"
+      title="新增类别"
       :visible.sync="dialogVisible"
       :modal-append-to-body='false'
       width="30%"
       :before-close="handleClose">
       <el-form :model="nodeForm" ref="nodeForm" :rules="rules" >
         <el-form-item label="名称" prop="categoryName" >
-          <el-input v-model="nodeForm.categoryName" placeholder="请输入节点名称" show-word-limit maxlength=6
+          <el-input v-model="nodeForm.categoryName" placeholder="请输入类别名称" show-word-limit maxlength=6
                     clearable style="width:300px"></el-input>
         </el-form-item>
         <el-form-item label="简介" prop="categoryDesc" >
-          <el-input type="textarea" :rows="3" v-model="nodeForm.categoryDesc" placeholder="请输入节点简介"
+          <el-input type="textarea" :rows="3" v-model="nodeForm.categoryDesc" placeholder="请输入类别简介"
            show-word-limit maxlength=200 clearable style="width:300px"></el-input>
         </el-form-item>
       </el-form>
@@ -148,6 +145,7 @@ export default{
       nowAddPNode:'',//新增节点的父节点
       nowEditNodeData:'',//所编辑节点的数据
       handleNodeId:'',//所点击的节点编码
+      handleNodeIds:'',//所点击的节点id
       parentNodeId:'',
       dialogVisible: false,
 			NODE_KEY: 'categoryCode',// id对应字段
@@ -173,7 +171,7 @@ export default{
       supplier:'',//供应商
       name:'',//商品名称
       supplierTypeList:[],
-      goodsTable:['index','goodsId','goodsType','name','unit','supplier','purchasePrice','integral','sellPrice','inventory'],
+      goodsTable:['index','goodsCode','categoryName','goodsName','goodsUnit','supplierName','goodsBid','goodsPrice','goodsStock','goodsPoints'],
       goodsData:[],
       rules:{
         categoryName:[
@@ -193,7 +191,7 @@ export default{
     HeadTop,
   },
   mounted(){
-    this.getListInfo();
+    this.getListInfo('init');
     this.getTreeInfo();
     this.getSupplierInfo();
   },
@@ -201,15 +199,15 @@ export default{
      getDataLabel(type){
       const typeLabel = {
         index:'序号',
-        goodsId:'商品编号',
-        goodsType:'商品类别',
-        name:'商品名称',
-        unit:'单位',
-        supplier:'供应商',
-        purchasePrice:'进价',
-        sellPrice:'售价',
-        inventory:'库存',
-        integral:'积分',
+        goodsCode:'商品编号',
+        categoryName:'商品类别',
+        goodsName:'商品名称',
+        goodsUnit:'单位',
+        supplierName:'供应商',
+        goodsBid:'进价',
+        goodsPrice:'售价',
+        goodsStock:'库存',
+        goodsPoints:'积分',
       }
       return typeLabel[type] || '';
     },
@@ -285,8 +283,11 @@ export default{
       this.closeNodeInfo();
       this.dialogVisible = true;
     },
+    // 点击类别节点
     handleNode(_node, _data){
       this.handleNodeId = _data.categoryCode;
+      this.handleNodeIds = _data.id;
+      this.getListInfo('init');//根据点击的类别 查询列表
       console.log('所点击节点的id',this.handleNodeId);
       
     },
@@ -365,13 +366,19 @@ export default{
         }
       }).catch()
     },
-    getListInfo(){
+    getListInfo(_type){
+      if(_type === 'init'){
+        this.path = 0;
+      }
       const that = this;
       var id = '';//所点击的节点的id
       that.dataListLoading = true;
       getGoodsList({
         page:that.page,
         size:that.pageSize,
+        supplierId: that.supplier,
+        goodsName:that.name,
+        categoryId: that.handleNodeIds,
       }).then(res=>{
         if(res && res.code === 200){
           that.goodsData = res.data.rows;
