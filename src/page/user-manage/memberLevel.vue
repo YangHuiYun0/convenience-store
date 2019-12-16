@@ -4,31 +4,36 @@
             :visible.sync="levelVisible"
             :modal-append-to-body='false'
             width='500px'>
-      <el-form :model="levelForm" ref="levelForm" label-width="100px" :rules="rules" >
+      <el-form :model="levelForm" ref="levelForm" :rules="rules" >
          <el-form-item label="普通会员" prop="ordinary">
-          <el-input-number v-model="levelForm.ordinary"  placeholder="请输入积分范围" 
-          :step="1" :min="0" :max=' Number(levelForm.silver)-1' style="width:300px"></el-input-number>
+          <el-input-number v-model="levelForm.ordinary.levelPoint"  placeholder="请输入积分范围" 
+          :step="1" :min="0" :max=' Number(levelForm.silver.levelPoint)-1' style="width:250px"></el-input-number>
+          <span>&nbsp;&nbsp;折扣：{{levelForm.ordinary.discount*10}}折</span>
         </el-form-item>
-
         <el-form-item label="白银会员" prop="silver">
-          <el-input-number v-model="levelForm.silver"  placeholder="请输入积分范围" 
-          :step="1" :min=" Number(levelForm.ordinary)" :max='Number(levelForm.gold)-1' style="width:300px"></el-input-number>
+          <el-input-number v-model="levelForm.silver.levelPoint"  placeholder="请输入积分范围" 
+          :step="1" :min=" Number(levelForm.ordinary.levelPoint)" :max='Number(levelForm.gold.levelPoint)-1' style="width:250px"></el-input-number>
+          <span>&nbsp;&nbsp;折扣：{{levelForm.silver.discount*10}}折</span>
         </el-form-item>
         <el-form-item label="黄金会员" prop="gold">
-          <el-input-number v-model="levelForm.gold"  placeholder="请输入积分范围" 
-          :step="1" :min=" Number(levelForm.silver)" :max='Number(levelForm.platinum)-1' style="width:300px"></el-input-number>
+          <el-input-number v-model="levelForm.gold.levelPoint"  placeholder="请输入积分范围" 
+          :step="1" :min=" Number(levelForm.silver.levelPoint)" :max='Number(levelForm.platinum.levelPoint)-1' style="width:250px"></el-input-number>
+          <span>&nbsp;&nbsp;折扣：{{levelForm.gold.discount*10}}折</span>
         </el-form-item>
         <el-form-item label="白金会员" prop="platinum">
-          <el-input-number v-model="levelForm.platinum"  placeholder="请输入积分范围" 
-          :step="1" :min=" Number(levelForm.gold)" :max='Number(levelForm.jewel)-1' style="width:300px"></el-input-number>
+          <el-input-number v-model="levelForm.platinum.levelPoint"  placeholder="请输入积分范围" 
+          :step="1" :min=" Number(levelForm.gold.levelPoint)" :max='Number(levelForm.jewel.levelPoint)-1' style="width:250px"></el-input-number>
+          <span>&nbsp;&nbsp;折扣：{{levelForm.platinum.discount*10}}折</span>
         </el-form-item>
         <el-form-item label="钻石会员" prop="jewel">
-          <el-input-number v-model="levelForm.jewel"  placeholder="请输入积分范围" 
-          :step="1" :min=" Number(levelForm.platinum) " :max='Number(levelForm.super)-1' style="width:300px"></el-input-number>
+          <el-input-number v-model="levelForm.jewel.levelPoint"  placeholder="请输入积分范围" 
+          :step="1" :min=" Number(levelForm.platinum.levelPoint) " :max='Number(levelForm.super.levelPoint)-1' style="width:250px"></el-input-number>
+          <span>&nbsp;&nbsp;折扣：{{levelForm.jewel.discount*10}}折</span>
         </el-form-item>
         <el-form-item label="超级会员" prop="super">
-          <el-input-number v-model="levelForm.super"  placeholder="请输入积分范围" 
-          :step="1" :min="Number(levelForm.jewel)" style="width:300px"></el-input-number>
+          <el-input-number v-model="levelForm.super.levelPoint"  placeholder="请输入积分范围" 
+          :step="1" :min="Number(levelForm.jewel.levelPoint)" style="width:250px"></el-input-number>
+          <span>&nbsp;&nbsp;折扣：{{levelForm.super.discount*10}}折</span>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -46,12 +51,12 @@ export default {
       levelVisible:true,
       submitLoading:false,
       levelForm:{
-        ordinary:'',
-        silver:'',
-        gold:'',
-        platinum:'',
-        jewel:'',
-        super:'',
+        ordinary:{levelPoint:'',discount:''},
+        silver:{levelPoint:'',discount:''},
+        gold:{levelPoint:'',discount:''},
+        platinum:{levelPoint:'',discount:''},
+        jewel:{levelPoint:'',discount:''},
+        super:{levelPoint:'',discount:''},
       },
       rules:{
         ordinary:[ {required: true, message: '请输入会员积分', trigger: 'blur'}],
@@ -81,6 +86,8 @@ export default {
     cancel() {
       this.levelVisible = false;
       this.submitLoading = false;
+      var status = false
+      this.$emit('updateStatus',status);
     },
     formSubmit(){
       const that = this;

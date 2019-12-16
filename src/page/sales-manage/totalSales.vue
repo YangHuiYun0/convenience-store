@@ -24,7 +24,7 @@
 
 <script>
 import HeadTop from "../../components/headTop";
-import { getTotalSalesList } from "@/api/sales";
+import {  } from "@/api/sales";
 export default {
   data(){
     return{

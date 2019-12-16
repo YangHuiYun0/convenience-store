@@ -18,18 +18,23 @@
             :on-remove="handleRemove"
             :before-upload="beforeUpload"
             :auto-upload="false">
-            <el-button size="small" type="primary">上传券码</el-button>
+            <el-button size="small" type="primary">上传商品条码</el-button>
           </el-upload>
          </div>
           <div class="title">
-          <i class="el-icon-s-goods title-icon"></i>
-          <span> 商品价格</span>
-         </div>
+            <i class="el-icon-s-goods title-icon"></i>
+            <span> 商品价格</span>
+          </div>
+          <div style="text-align: right;margin-top: -33px">
+            <el-button size="small" type="danger" @click="closeAllInfo()">取消付款</el-button>
+          </div>
          <div class="table">
-          <el-table size='mini' :data="sellGoodsData" height="350" v-loading="dataListLoading" ref="totalData">
-            <el-table-column v-for="item in sellGoodsTable"
+          <el-table size='mini' :data="sellGoodsData" height="270" v-loading="dataListLoading" 
+          ref="totalData">
+            <el-table-column v-for="(item,index) in sellGoodsTable"
+                :type="index === 0 ? 'index' : ''"
                 :label="getDataLabel(item)"
-                :key="item" :prop="item"
+                :key="index" :prop="item"
                 align="center">
             </el-table-column>
             <el-table-column :label="getDataLabel('soldNum')" align="center" min-width="110px">
@@ -53,15 +58,16 @@
             <span>会员手机号：</span>
             <el-input v-model="mobile" placeholder="请输入手机号码" show-word-limit maxlength=11
                       clearable style="width:300px"></el-input>
+            <el-button type="success" @click="handlePhone" :loading="submitLoading">提交</el-button>
           </div>
           <div class="ft-price">
             <div>
-              <p style="text-decoration:line-through">原价：100</p>
-              <p>折扣：5</p>
-              <p>应付：95</p>
+              <p>原价：{{totalPrice}} 元</p>
+              <p>折扣：{{getDiscount()}} 元  <span class="tip" v-text="getDataLabel(memberLevel)"></span></p>
+              <p>应付：{{getEndPrice()}} 元</p>
             </div>
             <div class="btn">
-                <el-button type="success">付款</el-button>
+                <el-button type="success" @click="endSettlement()" :loading="submitLoadings">付款</el-button>
             </div>
           </div>
 
@@ -73,18 +79,25 @@
 
 <script>
 import HeadTop from "../../components/headTop";
-import { addBuyGoods } from "@/api/sales";
+import { getBuyGoods,getMemberInfo,setPayment } from "@/api/sales";
 export default {
   data(){
     return{
       stockFileList:[],
+      memberLevel:'',
+      memberId:null,
+      goods:[],
+      discountTotal:'0',//折扣值
       mobile:'',
       dataListLoading:false,
+      submitLoading:false,
+      submitLoadings:false,
       dialogImageUrl: '',
       dialogVisible: false,
-      sellGoodsData:[{index:1,goodsName:'矿泉水',goodsBarcode:'112233344',isActivities:'否',sellPrice:'10',soldNum:'1'},
-      {},{},{},{},{},{},{},{},{},{}],
-      sellGoodsTable:['index','goodsName','goodsBarcode','isActivities','sellPrice'],
+      totalPrice:0,
+      totalDiscount:1,
+      sellGoodsData:[],
+      sellGoodsTable:['index','goodsName','goodsCode','goodsPrice'],
     }
   },
   components: {
@@ -95,35 +108,58 @@ export default {
       const typeLabel = {
         index:'序号',
         goodsName:'商品名称',
-        goodsBarcode:'商品条码',
-        isActivities:'是否活动期',
-        sellPrice:'单价',
+        goodsCode:'商品条码',
+        goodsPrice:'单价',
         soldNum:'数量',
         totalPrice:'金额',
+        ordinary:'普通会员',
+        silver:'白银会员',
+        gold:'黄金会员',
+        platinum:'白金会员',
+        jewel:'钻石会员',
+        super:'超级会员',
       }
       return typeLabel[type] || '';
     },
 
+
+
     // 结算单个商品的总价
     settlementTotal(_item){
-      return Number(_item.sellPrice) *Number(_item.soldNum)
+      this.totalPrice = this.settleTotalPrice();
+      return Number(_item.goodsPrice) *Number(_item.soldNum)   
+    },
+    //计算全部的总价
+    settleTotalPrice(){
+      let _totalPrice = 0;
+      for (let i = 0; i < this.sellGoodsData.length; i++) {
+        let _item = this.sellGoodsData[i];
+        let _sum = Number(_item.goodsPrice) *Number(_item.soldNum)
+        _totalPrice += _sum; 
+      }
+      return _totalPrice
     },
     // 选择文件
     handleChange(file, fileList) {
       console.log(file);
       const spl = file.name.split('.');
-      if (spl[spl.length - 1] !== 'png') {
-        this.$message.error('文件格式不符，请上传png格式的文件');
+      var _fileSuffix = spl[spl.length - 1];
+      if ( _fileSuffix !== 'png' &&  _fileSuffix !== 'jpg' ) {
+        this.$message.error('文件格式不符，请上传png/jpg格式的文件');
         this.stockFileList = [];
         return false;
       }
       this.stockFileList = fileList.slice(-1);
       // 选择一个商品后 请求服务端  获取商品的数据  渲染列表
       const that = this;
+      var uploadBody = new FormData();
+      uploadBody.append('file',file.raw)
       that.dataListLoading = true;
-      addBuyGoods().then(res=>{
+      getBuyGoods(uploadBody).then(res=>{
         if(res && res.code === 200){
-          that.sellGoodsData.push(res.data.rows);
+          that.sellGoodsData.push(res.data);
+          that.totalPrice = that.settleTotalPrice();
+          that.stockFileList = [];  
         }else {
           that.$message.error(res.msg);
         }
@@ -143,6 +179,72 @@ export default {
     },
     handleRemove(file, fileList) {
       this.stockFileList = fileList;
+    },
+    //获取对应的折扣
+    getDiscount(){
+      this.discountTotal = this.formatNum((1-Number(this.totalDiscount))* Number(this.totalPrice),1);
+      return this.discountTotal;
+    },
+    // 获取折扣后的总价格
+    getEndPrice(){
+      return this.formatNum(this.totalPrice - this.getDiscount(),1) ;
+    },
+    formatNum(f, digit) { 
+      var m = Math.pow(10, digit); 
+      return parseInt(f * m, 10) / m; 
+    },
+    // 提交手机号码
+    handlePhone(){
+      const that = this;
+      this.submitLoading = true;
+      getMemberInfo(that.mobile).then(res =>{
+        if(res && res.code === 200){
+          that.totalDiscount = res.data.discount;
+          that.memberId = res.data.id;
+          that.memberLevel = res.data.levelName;
+        }else{
+          that.$message.error(res.msg)
+        }
+        that.submitLoading = false;
+      }).catch()
+    },
+    //付款时所提交的列表
+    setPaymentList(){
+      var _arr = [];
+      this.sellGoodsData.forEach((item,index) => {
+        _arr[index]={goodsId:item.id,soldNum:item.soldNum}
+      });
+      return _arr;
+    },
+    //付款
+    endSettlement(){
+      this.goods = this.setPaymentList();
+      const that = this;
+      this.submitLoadings = true;
+      setPayment({
+        goods:this.goods,
+        id:this.memberId,
+        discountTotal:this.discountTotal+'',
+      }).then(res =>{
+        if(res && res.code=== 200){
+          that.$message.success('付款成功');
+          setTimeout(() => {
+            that.closeAllInfo();
+          }, 500);
+        }else{
+          that.$message.error(res.msg);
+        }
+        that.submitLoadings = false;
+      })
+    },
+    closeAllInfo(){
+      this.sellGoodsData = [];
+      this.mobile = '';
+      this.memberLevel = '';
+      this.memberId = null;
+      this.discountTotal = '0';
+      this.totalPrice = 0;
+      this.totalDiscount = 1;
     },
   }
 }
@@ -183,7 +285,8 @@ export default {
     span{
       position: relative;
       top: -4px;
-      font-family: '楷体'
+      font-family: '楷体';
+      
     }
   }
   .ft-sell{
@@ -195,6 +298,7 @@ export default {
         font-size: 24px;
         font-family: '楷体';
       }
+
     }
     .ft-price{
       display: flex;
@@ -202,10 +306,15 @@ export default {
       margin-right: 300px;
       font-size: 20px;
       font-weight: 600;
+      .tip{
+        font-size: 14px;
+        font-weight: 400;
+        color: red
+      }
       .btn{
         margin: 80px 0 0  60px ;
       }
     }
-    
   }
+
 </style>

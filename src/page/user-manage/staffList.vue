@@ -51,8 +51,8 @@
                     clearable style="width:300px" ></el-input>
         </el-form-item>
         <el-form-item label="性别">
-          <el-radio v-model="staffForm.sex" label='男'>男</el-radio>
-          <el-radio v-model="staffForm.sex" label='女'>女</el-radio>
+          <el-radio v-model="staffForm.sex" label='1'>男</el-radio>
+          <el-radio v-model="staffForm.sex" label='2'>女</el-radio>
         </el-form-item>
         <el-form-item label="店员名字" prop="name">
           <el-input v-model="staffForm.name"  placeholder="请输入店员名字"  show-word-limit maxlength=6
@@ -118,7 +118,7 @@ export default {
         userName:'',
         phone:'',
         password:'123456',
-        sex:'男',
+        sex:'2',
         userType:1,
       },
       rules:{

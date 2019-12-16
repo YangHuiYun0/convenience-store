@@ -2,7 +2,12 @@
   <div>
     <HeadTop/>
     <el-card>
-      <header class="section_title">数据统计</header>
+      <div class="stand">
+        <el-button type="success" @click="goToCheckstand()" >收银台
+        </el-button>
+      </div>
+      <header class="section_title">数据统计
+      </header>
       <el-row>
         <el-col :span="2">&nbsp;&nbsp;</el-col>
         <el-col :span="7">
@@ -143,6 +148,11 @@ export default {
                   };
       this.myChart.setOption(option);
     },
+    goToCheckstand(){
+      this.$router.push({
+          path: '/sales-manage-checkstand',
+        });
+    },
   }
 }
 </script>
@@ -167,6 +177,9 @@ export default {
   }
   .clearfix:after {
     clear: both
+  }
+  .stand{
+    text-align: right;
   }
   .clear{
     font-size: 20px;
