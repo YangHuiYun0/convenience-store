@@ -131,3 +131,12 @@ export function getGoodsCode(data) {
         data
     })
 }
+
+//更改商品库存量
+export function editGoodsStock(id,data) {
+    return request({
+        url:`/stock/${id}`,
+        method:'put',
+        data
+    })
+}

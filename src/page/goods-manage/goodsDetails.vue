@@ -35,12 +35,12 @@
               </div>
             </el-form-item>
             <el-form-item label="商品类别" >
-              <el-select v-model="dataForm.categoryId" clearable placeholder="商品类别">
+              <el-select v-model="dataForm.categoryCode" clearable placeholder="商品类别">
                 <el-option
                   v-for="item in goodsTypeList"
                   :key="item.id"
                   :label="item.categoryName"
-                  :value="item.id">
+                  :value="item.categoryCode">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -274,7 +274,12 @@ export default {
         const that = this;
          getGoodsCode(uploadBody).then(res=>{
           if(res && res.code === 200){
-            that.dataForm.goodsCode = res.data;
+            if(res.data.id){
+              that.stockFileList = [];
+              that.$message.error('此条码已被占有，请重新上传')
+            }else{
+              that.dataForm.goodsCode = res.data.goodsCode;
+            }
           }else {
             that.$message.error(res.msg);
           }

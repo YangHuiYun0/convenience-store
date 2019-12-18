@@ -74,7 +74,7 @@
               <template slot-scope="scope"> 
                 <!--编辑 删除 -->
                 <el-tooltip class="item" effect="dark" content="编辑" placement="top">
-                  <i class="el-icon-edit"  @click="addGoods(scope.row.id,handleNodeId);"></i> 
+                  <i class="el-icon-edit"  @click="addGoods(scope.row.id,scope.row.categoryCode);"></i> 
                 </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="删除" placement="top">
                   <i class="el-icon-delete" @click="delHandle(scope.row,scope.$index);"></i>
@@ -145,7 +145,6 @@ export default{
       nowAddPNode:'',//新增节点的父节点
       nowEditNodeData:'',//所编辑节点的数据
       handleNodeId:'',//所点击的节点编码
-      handleNodeIds:'',//所点击的节点id
       parentNodeId:'',
       dialogVisible: false,
 			NODE_KEY: 'categoryCode',// id对应字段
@@ -286,7 +285,6 @@ export default{
     // 点击类别节点
     handleNode(_node, _data){
       this.handleNodeId = _data.categoryCode;
-      this.handleNodeIds = _data.id;
       this.getListInfo('init');//根据点击的类别 查询列表
       console.log('所点击节点的id',this.handleNodeId);
       
@@ -378,7 +376,7 @@ export default{
         size:that.pageSize,
         supplierId: that.supplier,
         goodsName:that.name,
-        categoryId: that.handleNodeIds,
+        categoryCode: that.handleNodeId,
       }).then(res=>{
         if(res && res.code === 200){
           that.goodsData = res.data.rows;
