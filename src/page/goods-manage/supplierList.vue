@@ -84,7 +84,7 @@ export default {
     return{
       page:0,
       totalList:0,
-      pageSize:5,
+      pageSize:8,
       dataListLoading:false,
       isShowList:true,
       submitLoading:false,
@@ -217,6 +217,7 @@ export default {
               type: 'success',
               message: `${that.addSupplierForm.id?'修改':'增加'}成功`
             });
+             that.$refs.addSupplierForm.resetFields();
             // that.addSupplierForm.id = res.data.id;
             that.getInfo();
           }else{

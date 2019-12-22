@@ -14,7 +14,11 @@
             :key="item" :prop="item"
             align="center">
         </el-table-column>
-        <!-- 'totalAmount', -->
+        <el-table-column label="编辑时间" align="center" prop="updateTime"  width="200">
+          <template slot-scope="scope">
+            {{long2DateStr(scope.row.updateTime)}}
+          </template>
+        </el-table-column>
         <el-table-column label="库存量" align="center" min-width="110px">
           <template slot-scope="scope">
             <template v-if="scope.row.edit">
@@ -62,7 +66,7 @@ export default {
       submitLoading:false,
       name:'',
       inventoryData:[],
-      inventoryTable:['index','goodsCode','categoryName','goodsName','supplierName','updateTime'],
+      inventoryTable:['index','goodsCode','categoryName','goodsName','supplierName'],
     }
   },
   components: {
@@ -118,6 +122,10 @@ export default {
       }).catch(err=>{
         this.dataListLoading = false;
       })
+    },
+    long2DateStr(time) {
+      time = `${time.substr(0,4)}年${time.substr(4,2)}月${time.substr(6,2)}日 ${time.substr(8,2)}:${time.substr(10,2)}`;
+      return time;
     },
     cancelEdit(row) {
       row.goodsStock = row.originalAmount;

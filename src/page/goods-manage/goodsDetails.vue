@@ -131,7 +131,7 @@ export default {
       dataForm:{
         id:this.$route.query['id']||'',
         goodsName:'',
-        goodsStatus:1,
+        goodsStatus:'1',
         goodsCode:'',
         categoryName:'',//商品类别
         goodsUnit:'',

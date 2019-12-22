@@ -18,6 +18,11 @@
             :key="item" :prop="item"
             align="center">
         </el-table-column>
+        <el-table-column label="性别" align="center" prop="sex" >
+          <template slot-scope="scope">
+            {{scope.row.sex=== '1'?'男':'女'}}
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="150" align="center">
           <template slot-scope="scope"> 
             <!--编辑 删除 -->
@@ -109,7 +114,7 @@ export default {
       workNumber:'',
       name:'',
       staffData:[],
-      staffTable:['index','name','userName','sex','phone'],
+      staffTable:['index','name','userName','phone'],
       // 增加弹窗
       dialogVisible:false,
       staffForm:{

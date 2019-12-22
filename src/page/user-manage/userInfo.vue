@@ -52,6 +52,7 @@
 
 <script>
 import HeadTop from "../../components/headTop";
+
 export default {
   data(){
     const validateComfirmPassword = (rule, value, callback) => {
