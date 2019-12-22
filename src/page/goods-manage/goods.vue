@@ -510,13 +510,5 @@ export default{
     background-color: #76b852;
     color: #FFF;
   }
-  .el-table__header-wrapper thead div {
-    background-color: 	#76b852;
-  }
-  .el-table th {
-    background-color: #76b852;
-  }
-  .el-table thead{
-    color: #363636;
-  }
+
 </style>

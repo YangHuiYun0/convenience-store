@@ -3,12 +3,10 @@
     <HeadTop/>
     <div class="tables" style="padding:20px">
       <div style="margin-bottom:10px;text-align: right">
-        <el-button  type="success" class="el-icon-plus modify-btn right-btn" size="small"
-                  @click="addStaffInfo()">增加店员</el-button>
-      </div>
-       <div style="text-align: right; padding-right:80px">
-          <el-input v-model="name" style="width:200px" placeholder="请输入店员名字"></el-input>
+         <el-input v-model="name" style="width:200px" placeholder="请输入店员名字"></el-input>
           <el-button type="info" @click="getInfo" >查询</el-button>
+        <el-button  type="success" class="el-icon-plus modify-btn right-btn" 
+                  @click="addStaffInfo()">增加店员</el-button>
       </div>
       <el-table :data="staffData" v-loading="dataListLoading" ref="eltable">
         <el-table-column v-for="(item,index) in staffTable"

@@ -93,3 +93,21 @@ export function getMemberList(params) {
         params
     })
 }
+
+//查看个人信息
+
+export function getUserInfo() {
+    return request({
+        url:'/user/currentUser',
+        method:'get',
+    })
+}
+
+//退出登录
+
+export function getLogout() {
+    return request({
+        url:'/logout',
+        method:'get',
+    })
+}

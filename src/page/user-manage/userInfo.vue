@@ -10,15 +10,15 @@
           <div class="msg-box">
             <p >
               <b>用户名：</b>
-              <span>admin</span>
+              <span>{{name}}</span>
             </p>
             <p >
               <b>手机号码：</b>
-              <span>158920888999</span>
+              <span>{{phone}}</span>
             </p>
             <p >
               <b>创建时间：</b>
-              <span>3222333</span>
+              <span>{{long2DateStr(createTime)}}</span>
             </p>
           </div>
         </div>
@@ -30,11 +30,11 @@
       :append-to-body="true">
       <el-form :model="dataForm" :rules="rules" ref="dataForm" label-width="80px">
         <el-form-item label="账号">
-          <span>{{ userName }}</span>
+          <span>{{ name }}</span>
         </el-form-item>
-        <el-form-item label="原密码" prop="password">
+        <!-- <el-form-item label="原密码" prop="password">
           <el-input type="password" v-model="dataForm.password"></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="新密码" prop="newPassword">
           <el-input type="password" v-model="dataForm.newPassword"></el-input>
         </el-form-item>
@@ -43,8 +43,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="dataFormSubmit()">确定</el-button>
+        <el-button @click="dialogVisible = false" :loading="submitLoading">取消</el-button>
+        <el-button type="primary" :loading="submitLoading"  @click="dataFormSubmit()">确定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -52,7 +52,7 @@
 
 <script>
 import HeadTop from "../../components/headTop";
-
+import { getUserInfo,editMember,getLogout } from "@/api/user";
 export default {
   data(){
     const validateComfirmPassword = (rule, value, callback) => {
@@ -63,7 +63,12 @@ export default {
     };
     return{
       dialogVisible:false,
-      userName:'admin',
+      submitLoading:false,
+      userName:'',
+      name:'',
+      phone:'',
+      createTime:'',
+      id:'',
       dataForm:{
         password:'',
         newPassword:'',
@@ -79,19 +84,54 @@ export default {
   components: {
     HeadTop,
   },
+  mounted(){
+    const that = this;
+    getUserInfo().then(res =>{
+      if(res && res.code === 200){
+        that.name = res.data.name;
+        that.phone = res.data.phone;
+        that.createTime = res.data.createTime;
+        that.id = res.data.id;
+        that.userName = res.data.userName;
+      }
+    })
+  },
   methods:{
     updatePasswordHandle(){
       this.dialogVisible = true;
     },
      // 表单提交
     dataFormSubmit() {
+      const that = this;
       this.$refs['dataForm'].validate((valid) => {
         if (!valid) {
           this.$message.error('请填写完整再保存');
           return false;
         }
+        that.submitLoading = true;
+        editMember(that.id,{
+          id:that.id,
+          userName:that.userName,
+          password:that.dataForm.newPassword,
+        }).then(res =>{
+          if(res && res.code === 200){
+            that.$message.success('修改密码成功');
+          }else{
+            that.$message.error('修改密码失败');
+          }
+          that.dialogVisible = false;
+          that.submitLoading = false;
+          that.$refs.dataForm.resetFields();
+          getLogout().then()
+        },()=>{
+          that.submitLoading = false;
+        })
       })
-    }
+    },
+    long2DateStr(time) {
+      time = `${time.substr(0,4)}年${time.substr(4,2)}月${time.substr(6,2)}日 ${time.substr(8,2)}:${time.substr(10,2)}`;
+      return time;
+    },
   }
 }
 </script>

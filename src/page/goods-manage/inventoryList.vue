@@ -2,7 +2,7 @@
   <div>
     <HeadTop/>
     <div class="tables" style="padding:20px">
-      <div style="text-align: right; padding-right:80px">
+      <div style="text-align: right; padding-right:80px;margin-bottom:10px;">
           <el-input v-model="name" style="width:200px" placeholder="请输入商品名称"></el-input>
           <el-button type="info" @click="getDataList('init')">查询</el-button>
       </div>
@@ -163,17 +163,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
- .el-pagination.is-background .el-pager li:not(.disabled).active {
-    background-color: #76b852;
-    color: #FFF;
-  }
-  .el-table__header-wrapper thead div {
-    background-color: 	#3CB371;
-  }
-  .el-table th {
-    background-color: #3CB371;
-  }
-  .el-table thead{
-    color: #363636;
-  }
+
 </style>

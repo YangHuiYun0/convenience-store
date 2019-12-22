@@ -137,17 +137,5 @@ export default {
 </script >
 
 <style lang="scss">
-  .el-pagination.is-background .el-pager li:not(.disabled).active {
-    background-color: #76b852;
-    color: #FFF;
-  }
-  .el-table__header-wrapper thead div {
-    background-color: 	#67C23A;
-  }
-  .el-table th {
-    background-color: #67C23A;
-  }
-  .el-table thead{
-    color: #363636;
-  }
+
 </style>
