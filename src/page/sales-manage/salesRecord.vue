@@ -8,25 +8,26 @@
           <template slot-scope="scope">
             <el-form label-position="left" inline class="demo-table-expand">
               <el-form-item label="商品类别:">
-                <span>{{ scope.row.goodsType }}</span>
+                <span>{{ scope.row.category_name }}</span>
               </el-form-item>
               <el-form-item label="供应商名称:">
-                <span>{{ scope.row.supplierName }}</span>
+                <span>{{ scope.row.supplier_name }}</span>
               </el-form-item>
               <el-form-item label="会员名字:">
-                <span>{{ scope.row.memberName }}</span>
+                <span>{{ scope.row.customer_name?scope.row.customer_name:'无' }}</span>
               </el-form-item>
               <el-form-item label="会员号码:">
-                <span>{{ scope.row.memberMobile }}</span>
-              </el-form-item>
-              <el-form-item label="折扣:">
-                <span>{{ scope.row.discount }}</span>
+                <span>{{ scope.row.phone ? scope.row.phone:'无' }}</span>
               </el-form-item>
             </el-form>
           </template>
         </el-table-column>
+        <el-table-column label="出售时间" align="center" prop="create_time" >
+          <template slot-scope="scope">
+            {{long2DateStr(scope.row.create_time)}}
+          </template>
+        </el-table-column>
         <el-table-column v-for="item in salesTable"
-            :type="index === 0 ? 'index' :''"
             :label="getDataLabel(item)"
             :key="item" :prop="item"
             align="center">
@@ -46,7 +47,8 @@
 
 <script>
 import HeadTop from "../../components/headTop";
-import { getSalesRecord } from "@/api/sales";
+import { getSalesInfo } from "@/api/sales";
+import moment from 'moment';
 export default {
   data(){
     return{
@@ -54,22 +56,8 @@ export default {
       totalList:3,
       pageSize:12,
       dataListLoading:false,
-      salesData:[{
-        index:'1',
-        soldTime:'1',
-        goodsName:'1',
-        goodsType:'1',
-        supplierName:'1',
-        staffName:'1',
-        soldNum:'1',
-        sellPrice:'1',
-        isMember:'1',
-        memberName:'1',
-        memberMobile:'1',
-        discount:'1',
-        totalPrice:'1',
-      }],
-      salesTable:['soldTime','goodsName','staffName','soldNum','sellPrice','isMember','totalPrice'],
+      salesData:[],
+      salesTable:['goods_name','sales_name','info_num','goods_price','amount'],
     }
   },
   components: {
@@ -82,18 +70,16 @@ export default {
     getDataLabel(type){
       const typeLabel = {
         index:'序号',
-        soldTime:'出售时间',
-        goodsName:'商品名称',
-        goodsType:'商品类别',
-        supplierName:'供应商名称',
-        staffName:'店员名字',
-        soldNum:'售出数量',
-        sellPrice:'售价',
-        isMember:'是否会员',
-        memberName:'会员名字',
-        memberMobile:'会员号码',
-        discount:'折扣',
-        totalPrice:'金额(元)',
+        create_time:'出售时间',
+        goods_name:'商品名称',
+        category_name:'商品类别',
+        supplier_name:'供应商名称',
+        sales_name:'操作人',
+        info_num:'售出数量',
+        goods_price:'售价',
+        customer_name:'会员名字',
+        phone:'会员号码',
+        amount:'金额(元)',
       }
       return typeLabel[type] || '';
     },
@@ -101,16 +87,19 @@ export default {
       this.page = val;
       this.getDataList();
     },
-
+    long2DateStr(time) {
+      time = `${time.substr(0,4)}年${time.substr(4,2)}月${time.substr(6,2)}日 ${time.substr(8,2)}:${time.substr(10,2)}`;
+      return time;
+    },
     getDataList(_type){
       if(_type){
         this.page = 0;
       }
       const that = this;
       that.dataListLoading = true;
-      getDataList({
+      getSalesInfo({
         page:this.page,
-        pageSize:this.pageSize
+        size:this.pageSize
       }).then(res=>{
         if(res && res.code === 200){
           that.salesData = res.data.rows;
@@ -124,25 +113,12 @@ export default {
         that.dataListLoading = false;
       })
     },
-
   }
 }
 </script>
 
 <style lang="scss" scoped>
- .el-pagination.is-background .el-pager li:not(.disabled).active {
-    background-color: #76b852;
-    color: #FFF;
-  }
-  .el-table__header-wrapper thead div {
-    background-color: 	#3CB371;
-  }
-  .el-table th {
-    background-color: #3CB371;
-  }
-  .el-table thead{
-    color: #363636;
-  }
+
    .demo-table-expand {
     font-size: 0;
   }

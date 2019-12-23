@@ -17,10 +17,10 @@
               <span>销售金额</span>
             </div>
             <div class="text item">
-              <p>今天</p>
-              <p>昨天</p>
-              <p>本周</p>
-              <p>本月</p>
+              <p>今天 : {{salesInfo.today ? salesInfo.today.total:0}} 元</p>
+              <p>昨天 : {{salesInfo.yesterday ? salesInfo.yesterday.total:0}} 元</p>
+              <p>本周 : {{salesInfo.week ? salesInfo.week.total:0}} 元</p>
+              <p>本月 : {{salesInfo.month ? salesInfo.month.total:0}} 元</p>
             </div>
           </el-card>
         </el-col>
@@ -31,10 +31,10 @@
               <span>会员数量</span>
             </div>
             <div class="text item">
-              <p>今天</p>
-              <p>昨天</p>
-              <p>本周</p>
-              <p>本月</p>
+              <p>今天 : {{memberInfo.today ? memberInfo.today.total:0}} 位</p>
+              <p>昨天 : {{memberInfo.yesterday ? memberInfo.yesterday.total:0}} 位</p>
+              <p>本周 : {{memberInfo.week ? memberInfo.week.total:0}} 位</p>
+              <p>本月 : {{memberInfo.month ? memberInfo.month.total:0}} 位</p>
             </div>
           </el-card>
         </el-col>
@@ -45,10 +45,10 @@
               <span>订单数量</span>
             </div>
             <div class="text item">
-              <p>今天</p>
-              <p>昨天</p>
-              <p>本周</p>
-              <p>本月</p>
+              <p>今天 : {{salesInfo.today ? salesInfo.today.num:0}} 笔</p>
+              <p>昨天 : {{salesInfo.yesterday ? salesInfo.yesterday.num:0}} 笔</p>
+              <p>本周 : {{salesInfo.week ? salesInfo.week.num:0}} 笔</p>
+              <p>本月 : {{salesInfo.month ? salesInfo.month.num:0}} 笔</p>
             </div>
           </el-card>
         </el-col>
@@ -73,21 +73,69 @@
     import 'echarts/lib/component/toolbox';
     import 'echarts/lib/component/markPoint';
     import 'echarts/lib/component/tooltip';
+    import { getHomeInfo,getEchartsData } from "@/api/home";
 export default {
+  data(){
+    return{
+      memberInfo:{},
+      salesInfo:{},
+      dates:[],
+      userNums:[],
+      amounts:[],
+      nums:[],
+    }
+  },
   mounted(){
-    this.myChart = echarts.init(document.getElementById('chart'));
-    this.initData();
+        this.myChart = echarts.init(document.getElementById('chart'));
+    
+        const that = this;
+    getEchartsData().then(res =>{
+      if(res && res.code === 200){
+        console.log('图形',res);
+        res.data.forEach(item => {
+          that.dates.unshift(item.date);
+          that.userNums.unshift(item.userNum);
+          that.amounts.unshift(item.amount);
+          that.nums.unshift(item.num);
+        });
+        that.initData();
+      }
+    })
+
+    this.getDataInfo();
+
   },
   components: {
     HeadTop,
   },
   methods:{
+    getDataInfo(){
+      const that = this;
+      // 1查询销量
+      getHomeInfo({
+        queryType:'1'
+      }).then(res =>{
+        console.log('销量',res);
+        if(res && res.code === 200){
+          that.salesInfo = res.data;
+        }
+      });
+      // 2查询会员
+      getHomeInfo({
+        queryType:'2'
+      }).then(res =>{
+        console.log('会员',res);
+        if(res && res.code === 200){
+          that.memberInfo = res.data;
+        }
+      });
+    },
     initData(){
       // 定义图表颜色
       const colors = ['#5793f3', '#675bba', '#d14a61'];
       const option = {
                     color: colors,
-                    title: { text: '走势图',},
+                    title: { text: '近七天走势图',},
                     tooltip: {//配置提示框
                       trigger: 'axis'
                     },
@@ -108,7 +156,7 @@ export default {
                     xAxis:  {
                         type: 'category',
                         boundaryGap: false,
-                        data: ['今天','昨天','本周','本月']
+                        data:this.dates
                     },
                     yAxis: [
                       {
@@ -129,20 +177,20 @@ export default {
                     ],
                      series: [
                         {
-                            name:'新注册用户',
+                            name:'会员数量',
                             type:'line',
-                            data:[30,23,56,9],
+                            data:this.userNums,
 
                         },
                         {
-                            name:'新增订单',
+                            name:'订单数量',
                             type:'line',
-                            data:[50,63,16,12],
+                            data:this.nums,
                         },
                         {
-                            name:'新增管理员',
+                            name:'销售金额',
                             type:'line',
-                            data:[10,40,70,15],
+                            data:this.amounts,
                         }
                     ]
                   };

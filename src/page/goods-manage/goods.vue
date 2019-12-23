@@ -61,12 +61,12 @@
             </el-row>
           </el-form>
           <el-table :data="goodsData" v-loading="dataListLoading"
-           :row-key="row => row.index" ref="eltable"
-           @selection-change="handleSelectionChange">
+            ref="eltable">
             <el-table-column v-for="(item,index) in goodsTable"
                 :label="getDataLabel(item)"
+                :type="index === 0 ? 'index' : ''"
                 :width="(index === 0 && 50)"
-                :index="indexMethod"
+  
                 :key="item" :prop="item"
                 align="center">
             </el-table-column>
@@ -510,13 +510,5 @@ export default{
     background-color: #76b852;
     color: #FFF;
   }
-  .el-table__header-wrapper thead div {
-    background-color: 	#76b852;
-  }
-  .el-table th {
-    background-color: #76b852;
-  }
-  .el-table thead{
-    color: #363636;
-  }
+
 </style>

@@ -2,7 +2,7 @@
   <div>
     <HeadTop/>
     <div class="tables" style="padding:20px">
-      <div style="text-align: right; padding-right:80px">
+      <div style="text-align: right; padding-right:80px;margin-bottom:10px;">
           <el-input v-model="name" style="width:200px" placeholder="请输入商品名称"></el-input>
           <el-button type="info" @click="getDataList('init')">查询</el-button>
       </div>
@@ -14,7 +14,11 @@
             :key="item" :prop="item"
             align="center">
         </el-table-column>
-        <!-- 'totalAmount', -->
+        <el-table-column label="编辑时间" align="center" prop="updateTime"  width="200">
+          <template slot-scope="scope">
+            {{long2DateStr(scope.row.updateTime)}}
+          </template>
+        </el-table-column>
         <el-table-column label="库存量" align="center" min-width="110px">
           <template slot-scope="scope">
             <template v-if="scope.row.edit">
@@ -62,7 +66,7 @@ export default {
       submitLoading:false,
       name:'',
       inventoryData:[],
-      inventoryTable:['index','goodsCode','categoryName','goodsName','supplierName','updateTime'],
+      inventoryTable:['index','goodsCode','categoryName','goodsName','supplierName'],
     }
   },
   components: {
@@ -119,6 +123,10 @@ export default {
         this.dataListLoading = false;
       })
     },
+    long2DateStr(time) {
+      time = `${time.substr(0,4)}年${time.substr(4,2)}月${time.substr(6,2)}日 ${time.substr(8,2)}:${time.substr(10,2)}`;
+      return time;
+    },
     cancelEdit(row) {
       row.goodsStock = row.originalAmount;
       row.edit = false
@@ -155,17 +163,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
- .el-pagination.is-background .el-pager li:not(.disabled).active {
-    background-color: #76b852;
-    color: #FFF;
-  }
-  .el-table__header-wrapper thead div {
-    background-color: 	#3CB371;
-  }
-  .el-table th {
-    background-color: #3CB371;
-  }
-  .el-table thead{
-    color: #363636;
-  }
+
 </style>

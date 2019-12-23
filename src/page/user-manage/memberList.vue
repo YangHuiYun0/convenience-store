@@ -20,17 +20,41 @@
                 :key="item" :prop="item"
                 align="center">
             </el-table-column>
+            <el-table-column label="性别" align="center" prop="sex" >
+              <template slot-scope="scope">
+                {{scope.row.sex=== '1'?'男':'女'}}
+              </template>
+            </el-table-column>
+            <el-table-column label="会员等级" align="center" prop="levelName" >
+              <template slot-scope="scope">
+                {{memberLevelName[scope.row.levelName].name}}
+              </template>
+            </el-table-column>
+            <el-table-column label="注册时间" align="center" prop="createTime" >
+              <template slot-scope="scope">
+                {{long2DateStr(scope.row.createTime)}}
+              </template>
+            </el-table-column>
+            <el-table-column label="用户冻结状态" prop="status" align="center">
+              <template slot-scope="scope">
+                <el-switch
+                  v-model="scope.row.status"
+                  active-color="#13ce66"
+                  @change="switchClick($event, scope.row, scope.$index)">
+                </el-switch>
+              </template>
+            </el-table-column>
             <el-table-column label="用户状态" prop="status" width="80" align="center">
               <template slot-scope="scope">
                 <el-tag
                   :key="scope.row.id"
                   class="el-tag el-tag--dark"
                   :class="[{
-                    'el-tag--danger': scope.row.status === 0,
-                    'el-tag--success': scope.row.status === 1,
+                    'el-tag--danger': scope.row.status === true,
+                    'el-tag--success': scope.row.status === false,
                   }]"
                   effect="plain">
-                  {{ scope.row.status ?'正常':'冻结' }}
+                  {{ scope.row.status ?'冻结':'正常' }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -92,7 +116,6 @@
 <script>
 import HeadTop from "../../components/headTop";
 import MemberLevel from "./memberLevel";
-import moment from 'moment';
 import { addStaff,delMember,getStaff,editStaff,getMemberList } from "../../api/user";
 export default {
   data(){
@@ -116,7 +139,7 @@ export default {
       name:'',
       phone:'',
       memberData:[],
-      memberTable:['index','name','sex','levelName','shoppingPoints','createTime','phone','status'],
+      memberTable:['index','name','shoppingPoints','phone'],
       memberForm:{
         id:null,
         name:'',
@@ -125,6 +148,14 @@ export default {
         phone:'',
         status:'1',
         userType:2
+      },
+      memberLevelName:{
+        ordinary:{name:'普通会员'},
+        silver:{name:'白银会员'},
+        gold:{name:'黄金会员'},
+        platinum:{name:'白金会员'},
+        jewel:{name:'钻石会员'},
+        super:{name:'超级会员'},
       },
       rules:{
         name:[
@@ -174,6 +205,9 @@ export default {
         if(res && res.code === 200){
           that.memberData = res.data.rows;
           that.totalList = res.data.total;
+          that.memberData.forEach(item => {
+            item.status = item.status === '1' ?false:true;
+          });
         }else{
           that.$message.error(res.msg)
         }
@@ -266,8 +300,25 @@ export default {
       })
     },
     long2DateStr(time) {
-      var s = moment(new Date(time)).format('YYYY-MM-DD HH:mm');
-      return s;
+      time = `${time.substr(0,4)}年${time.substr(4,2)}月${time.substr(6,2)}日-${time.substr(8,2)}:${time.substr(10,2)}`;
+      return time;
+    },
+    switchClick(value, row, index){
+      const that = this;
+      var _status = row.status ?'0':'1';
+      editStaff(row.id,{
+        status:_status,
+        id:row.id
+        }).then(res => {
+          if (res && res.code === 200) {
+            value ? that.$message.success('已冻结该用户') : this.$message.error('已取消冻结该会员');
+          } else {
+            that.$message.error("操作失败");
+            that.memberData[index].status = !value;
+          }
+        }, () => {
+          that.$message.error("操作失败");
+        });
     },
   }
 }

@@ -25,3 +25,11 @@ export function setPayment(data) {
         data
     })
 }
+//查询销量
+export function getSalesInfo(params) {
+    return request({
+        url:`/order`,
+        method:'get',
+        params
+    })
+}

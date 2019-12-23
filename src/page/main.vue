@@ -10,7 +10,7 @@
 					class="el-menu-vertical-demo"
 					text-color="#fff"
 					background-color="#545c64"
-					:unique-opened=true
+					:unique-opened='true'
 					style="min-height: 100%; " router theme="dark">
 					<el-menu-item index="/home"><i class="el-icon-menu"></i>首页</el-menu-item>
 					<el-submenu index="2">
@@ -33,7 +33,7 @@
 						<el-menu-item-group>
 							<el-menu-item index="/sales-manage-checkstand" style="padding-left: 60px;">收银台</el-menu-item>
 							<el-menu-item index="/sales-manage-salesRecord" style="padding-left: 60px;">销售记录</el-menu-item>
-							<el-menu-item index="/sales-manage-totalSales" style="padding-left: 60px;">销售统计</el-menu-item>
+							<!-- <el-menu-item index="/sales-manage-totalSales" style="padding-left: 60px;">销售统计</el-menu-item> -->
 						</el-menu-item-group>
 					</el-submenu>
 					<el-submenu index="4">

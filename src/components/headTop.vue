@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import { getLogout } from "@/api/user";
     export default {
       data(){
         return{
@@ -33,7 +34,8 @@
 					type: 'success',
 					message: '退出成功'
 				});
-				this.$router.push('/');
+				// this.$router.push('/');
+				getLogout().then()
 			},
 			async handleCommand(command) {
 				if (command == 'home') {
