@@ -1,11 +1,12 @@
 import axios from 'axios';
 import router from '../router';
+import Cookies from 'js-cookie';
 
 import { clearLoginInfo } from './index';
 import { getToken } from '../util/auth';
 import { Message } from 'element-ui';
 
-const BASE_API = 'http://192.168.0.101:9090';//本地
+const BASE_API = 'http://192.168.0.103:9090';//本地
 // const BASE_API = 'http://47.106.70.5:9090';   //服务器
 // 创建 axios 实例
 const service = axios.create({
@@ -35,6 +36,7 @@ service.interceptors.response.use(response => {
   if (response.data && response.data.code === 401) {
     router.push({ path: '/' });
     Message.error('您的访问权限已过期，请重新登录');
+    Cookies.remove("userType");
   }
     return response.data;
   
