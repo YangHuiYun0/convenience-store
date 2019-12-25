@@ -22,6 +22,7 @@
 <script>
 import { getLogin } from "../api/login";
 import { getToken, setToken } from '../util/auth';
+import Cookies from 'js-cookie';
 export default {
   data(){
     return{
@@ -48,7 +49,10 @@ export default {
               type: 'success',
               message: '登录成功'
             });
-            this.$router.push('/home')
+            let _userInfo = res.data;
+            Cookies.set("userType", _userInfo.userType);
+            this.$router.push('/home');
+
           }else{
             this.$message.error(res.msg)
           }

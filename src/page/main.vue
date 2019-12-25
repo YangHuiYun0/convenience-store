@@ -20,7 +20,6 @@
 						</template>
 						<el-menu-item-group>
 							<el-menu-item index="/goods-manage-goods" style="padding-left: 60px;">商品列表</el-menu-item>
-							<!-- <el-menu-item index="/goods-manage-goodsList" style="padding-left: 60px;">商品列表</el-menu-item> -->
 							<el-menu-item index="/goods-manage-inventoryList" style="padding-left: 60px;">库存管理</el-menu-item>
 							<el-menu-item index="/goods-manage-supplierList" style="padding-left: 60px;">供应商列表</el-menu-item>
 						</el-menu-item-group>
@@ -33,7 +32,6 @@
 						<el-menu-item-group>
 							<el-menu-item index="/sales-manage-checkstand" style="padding-left: 60px;">收银台</el-menu-item>
 							<el-menu-item index="/sales-manage-salesRecord" style="padding-left: 60px;">销售记录</el-menu-item>
-							<!-- <el-menu-item index="/sales-manage-totalSales" style="padding-left: 60px;">销售统计</el-menu-item> -->
 						</el-menu-item-group>
 					</el-submenu>
 					<el-submenu index="4">
@@ -43,7 +41,7 @@
 						</template>
 						<el-menu-item-group>
 							<el-menu-item index="/user-manage-memberList" style="padding-left: 60px;">会员列表</el-menu-item>
-							<el-menu-item index="/user-manage-staffList" style="padding-left: 60px;">店员列表</el-menu-item>
+							<el-menu-item index="/user-manage-staffList" style="padding-left: 60px;" v-if="userType==='0'">店员列表</el-menu-item>
 							<el-menu-item index="/user-manage-userInfo" style="padding-left: 60px;">个人信息</el-menu-item>
 						</el-menu-item-group>
 					</el-submenu>
@@ -60,15 +58,24 @@
 
 <script>
 import HeadTop from "../components/headTop";
+import Cookies from 'js-cookie';
     export default {
-			computed: {
-				defaultActive: function(){
-					return this.$route.path.replace('/', '');
-				}
-			},
-			components: {
-				HeadTop,
-			},
+		data(){
+			return{
+				userType:'0',
+			}
+		},
+		computed: {
+			defaultActive: function(){
+				return this.$route.path.replace('/', '');
+			}
+		},
+		components: {
+			HeadTop,
+		},
+		mounted(){
+			this.userType = Cookies.get('userType');
+		}
     }
 </script>
 
