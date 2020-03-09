@@ -53,8 +53,8 @@ export default {
   data(){
     return{
       page:0,
-      totalList:3,
-      pageSize:12,
+      totalList:0,
+      pageSize:10,
       dataListLoading:false,
       salesData:[],
       salesTable:['goods_name','sales_name','info_num','goods_price','amount'],

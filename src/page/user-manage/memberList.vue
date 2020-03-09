@@ -59,9 +59,9 @@
               </template>
             </el-table-column>
             <el-table-column label="操作" width="150" align="center">
-              <template slot-scope="scope"> 
+              <template slot-scope="scope">
                 <!--编辑 删除 -->
-                <i class="el-icon-edit"  @click="addMemberInfo(scope.row.id);"></i> 
+                <i class="el-icon-edit"  @click="addMemberInfo(scope.row.id);"></i>
                 <i class="el-icon-delete" @click="delHandle(scope.row.id,scope.row.name,scope.$index);"></i>
               </template>
             </el-table-column>
@@ -128,7 +128,7 @@ export default {
     }
     return{
       page:0,
-      totalList:3,
+      totalList:0,
       pageSize:10,
       isChange:true,
       dataListLoading:false,

@@ -5,7 +5,7 @@
       <div style="margin-bottom:10px;text-align: right">
          <el-input v-model="name" style="width:200px" placeholder="请输入店员名字"></el-input>
           <el-button type="info" @click="getInfo" >查询</el-button>
-        <el-button  type="success" class="el-icon-plus modify-btn right-btn" 
+        <el-button  type="success" class="el-icon-plus modify-btn right-btn"
                   @click="addStaffInfo()">增加店员</el-button>
       </div>
       <el-table :data="staffData" v-loading="dataListLoading" ref="eltable">
@@ -22,9 +22,9 @@
           </template>
         </el-table-column>
         <el-table-column label="操作" width="150" align="center">
-          <template slot-scope="scope"> 
+          <template slot-scope="scope">
             <!--编辑 删除 -->
-            <i class="el-icon-edit"  @click="addStaffInfo(scope.row.id);"></i> 
+            <i class="el-icon-edit"  @click="addStaffInfo(scope.row.id);"></i>
             <i class="el-icon-delete" @click="delHandle(scope.row.id,scope.row.name,scope.$index);"></i>
           </template>
         </el-table-column>
@@ -105,7 +105,7 @@ export default {
     return{
       page:0,
       totalList:0,
-      pageSize:5,
+      pageSize:10,
       dataListLoading:false,
       isShowList:true,
       submitLoading:false,

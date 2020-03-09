@@ -6,9 +6,9 @@
       <el-row style="width: 100%">
         <el-col :xs="10" :sm="10" :md="8" :lg="6" :xl="4"  class="aside">
           <div v-loading="isLoading" class="comp-tree">
-		        <el-button class="comp-tr-top" 
-              type="primary" 
-              size="small" 
+		        <el-button class="comp-tr-top"
+              type="primary"
+              size="small"
               @click="handleAddTop">添加商品大类</el-button>
             <el-tree ref="SlotTree"
               :data="setTree"
@@ -66,15 +66,15 @@
                 :label="getDataLabel(item)"
                 :type="index === 0 ? 'index' : ''"
                 :width="(index === 0 && 50)"
-  
+
                 :key="item" :prop="item"
                 align="center">
             </el-table-column>
             <el-table-column label="操作" width="150" align="center">
-              <template slot-scope="scope"> 
+              <template slot-scope="scope">
                 <!--编辑 删除 -->
                 <el-tooltip class="item" effect="dark" content="编辑" placement="top">
-                  <i class="el-icon-edit"  @click="addGoods(scope.row.id,scope.row.categoryCode);"></i> 
+                  <i class="el-icon-edit"  @click="addGoods(scope.row.id,scope.row.categoryCode);"></i>
                 </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="删除" placement="top">
                   <i class="el-icon-delete" @click="delHandle(scope.row,scope.$index);"></i>
@@ -120,7 +120,7 @@
 
 <script>
 import HeadTop from "../../components/headTop";
-import { 
+import {
   addNodeType,
   getNodeType,
   delGoods,
@@ -164,7 +164,7 @@ export default{
       // =========表格===========
       page:0,
       totalList:0,
-      pageSize:12,
+      pageSize:5,
       dataListLoading:false,
       goodsType:'',//商品类别
       supplier:'',//供应商
@@ -287,7 +287,7 @@ export default{
       this.handleNodeId = _data.categoryCode;
       this.getListInfo('init');//根据点击的类别 查询列表
       console.log('所点击节点的id',this.handleNodeId);
-      
+
     },
     //清空弹窗的表单数据
     closeNodeInfo(){
@@ -432,6 +432,7 @@ export default{
 
     currentChangeHandle(val){
       this.page = val;
+      this.getListInfo();
     },
     // 选中的商品
     handleSelectionChange(val) {

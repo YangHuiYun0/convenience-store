@@ -6,7 +6,7 @@ import { clearLoginInfo } from './index';
 import { getToken } from '../util/auth';
 import { Message } from 'element-ui';
 
-const BASE_API = 'http://192.168.0.103:9090';//本地
+const BASE_API = 'http://localhost:9090';//本地
 // const BASE_API = 'http://47.106.70.5:9090';   //服务器
 // 创建 axios 实例
 const service = axios.create({
@@ -39,7 +39,7 @@ service.interceptors.response.use(response => {
     Cookies.remove("userType");
   }
     return response.data;
-  
+
 }, error => {
   Message.error('请求超时，请重试');
   // 错误部分，待处理

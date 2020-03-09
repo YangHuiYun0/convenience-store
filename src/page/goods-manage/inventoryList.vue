@@ -31,9 +31,9 @@
           </template>
         </el-table-column>
         <el-table-column label="操作" width="150" align="center">
-          <template slot-scope="scope"> 
+          <template slot-scope="scope">
             <!--编辑 删除 -->
-            <el-button  v-if="scope.row.edit" :loading="submitLoading" type="primary"  size="small"  
+            <el-button  v-if="scope.row.edit" :loading="submitLoading" type="primary"  size="small"
               @click="confirmEdit(scope.row)">完成</el-button>
             <el-button v-else type="success" size="small"
              @click="scope.row.edit = !scope.row.edit">编辑</el-button>
@@ -60,7 +60,7 @@ export default {
     return{
       page:0,
       totalList:0,
-      pageSize:10,
+      pageSize:5,
       dataListLoading:false,
       isShowList:true,
       submitLoading:false,
@@ -153,6 +153,7 @@ export default {
     },
     currentChangeHandle(val){
       this.page = val;
+      this.getDataList()
     },
     indexMethod(index) {
       const page = this.page > 0 ? this.page - 1 : this.page;
